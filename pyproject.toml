@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "repl_python3_beta_Chewybot"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+discord = "^1.7.3"
+Flask = "^2.0.1"
+discord-py-slash-command = "^2.0.4"
+discord-command = "^0.0.2"
+pip-install = "^1.0.1"
+discord-slash-components = "^0.0.2"
+slash-command-decorator = "^0.0.3"
+register = "^0.1"
+eval7 = "^0.1.9"
+eval = "^0.0.5"
+motor = "^2.4.0"
+buttons = "^0.1.9"
+optional_import = "^1.2"
+pytz = "^2021.1"
+PyNaCl = "^1.4.0"
+giphy_client = "^1.0.0"
+praw = "^7.3.0"
+qrcode = "^7.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
