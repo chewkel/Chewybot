@@ -1,5 +1,6 @@
 import os
 import discord
+from discord import client
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions
 from discord_slash import SlashCommand, SlashCommandOptionType, SlashContext
@@ -30,6 +31,21 @@ import giphy_client
 from giphy_client.rest import ApiException
 import praw
 import qrcode
+#import levelsys
+#import dns
+from discord_components import *
+from discord_components import (
+    DiscordComponents,
+    Button,
+    ButtonStyle,
+    Select,
+    SelectOption,
+)
+from asyncio import TimeoutError
+from random import choice
+import DiscordUtils
+
+#cogs = [levelsys]
 
 guidl = guild_ids = [
     371390722751856640, 843089655976165387, 792426133157183490
@@ -48,19 +64,12 @@ reddit = praw.Reddit(client_id="sEt_NsT9HvHUkqRfIpTa7A",
                      password="mento3384@TATS",
                      user_agent="chewy")
 
-
-@client.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        await ctx.send("You can't do that. :(")
-    elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Missing arguement")
-    elif isinstance(error, commands.CommandNotFound):
-        await ctx.send("Command does not exist sorry.")
+music = DiscordUtils.Music()
 
 
 @client.event
 async def on_ready():
+    DiscordComponents(client)
     print('Chewybug is online :D')
 
     servers = len(client.guilds)
@@ -166,54 +175,54 @@ async def lesrate(ctx):
     await ctx.send(f"{ctx.author.mention} is {random.randint(0,100)}% lesbian")
 
 
-@commands.guild_only()
-@client.command(aliases=['calc'])
-async def calculate(ctx, operation, *nums):
-    if operation not in ['+', '-', '*', '/', '*', '%', '&']:
-        await ctx.send('Please type a valid operation type.')
-    var = f' {operation} '.join(nums)
-    await ctx.send(f'{var} = {eval(var)}')
+#@commands.guild_only()
+#@client.command(aliases=['calc'])
+#async def calculate(ctx, operation, *nums):
+#    if operation not in ['+', '-', '*', '/', '*', '%', '&']:
+#        await ctx.send('Please type a valid operation type.')
+#    var = f' {operation} '.join(nums)
+#    await ctx.send(f'{var} = {eval(var)}')
 
 
-@commands.guild_only()
-@client.command(name="eval", aliases=["exec"])
-@commands.is_owner()
-async def _eval(ctx, *, code):
-    code = clean_code(code)
-
-    local_variables = {
-        "discord": discord,
-        "commands": commands,
-        "bot": client,
-        "ctx": ctx,
-        "channel": ctx.channel,
-        "author": ctx.author,
-        "guild": ctx.guild,
-        "message": ctx.message
-    }
-
-    stdout = io.StringIO()
-
-    try:
-        with contextlib.redirect_stdout(stdout):
-            exec(
-                f"async def func():\n{textwrap.indent(code, '    ')}",
-                local_variables,
-            )
-
-            obj = await local_variables["func"]()
-            result = f"{stdout.getvalue()}\n-- {obj}\n"
-    except Exception as e:
-        result = "".join(format_exception(e, e, e.__traceback__))
-
-    pager = Pag(
-        timeout=100,
-        entries=[result[i:i + 2000] for i in range(0, len(result), 2000)],
-        length=1,
-        prefix="```py\n",
-        suffix="```")
-
-    await pager.start(ctx)
+#@commands.guild_only()
+#@client.command(name="eval", aliases=["exec"])
+#@commands.is_owner()
+#async def _eval(ctx, *, code):
+#    code = clean_code(code)
+#
+#    local_variables = {
+#        "discord": discord,
+#        "commands": commands,
+#        "bot": client,
+#        "ctx": ctx,
+#        "channel": ctx.channel,
+#        "author": ctx.author,
+#        "guild": ctx.guild,
+#        "message": ctx.message
+#    }
+#
+    #stdout = io.StringIO()
+#
+  #  try:
+  #      with contextlib.redirect_stdout(stdout):
+  #          exec(
+  #              f"async def func():\n{textwrap.indent(code, '    ')}",
+   #             local_variables,
+   #         )
+#
+   #         obj = await local_variables["func"]()
+  #          result = f"{stdout.getvalue()}\n-- {obj}\n"
+  #  except Exception as e:
+  #      result = "".join(format_exception(e, e, e.__traceback__))
+#
+  #  pager = Pag(
+    #    timeout=100,
+   #     entries=[result[i:i + 2000] for i in range(0, len(result), 2000)],
+   #     length=1,
+  #      prefix="```py\n",
+  #      suffix="```")
+#
+ #   await pager.start(ctx)
 
 
 options = [{
@@ -327,12 +336,38 @@ async def help2(ctx):
     embed.add_field(name="cool", value="You think that person is cool", inline=False)
     embed.add_field(name="jokes", value="Random lame jokes", inline=False)
     embed.add_field(name="prefix", value="Shows the bot's prefix", inline=False)
+    embed.add_field(name="music", value="Lists out all the music commands available.", inline=False)    
     embed.set_footer(text="Made by Geeky™#9900")
     await ctx.send(embed=embed)
 
+@commands.guild_only()
+@client.command()
+async def music(ctx):
+    embed = discord.Embed(title="Help",
+                          description="Get some help",
+                          color=0x34ffcc)
+    embed.add_field(name="join",value="Joins the Current voice channel you are in.",
+inline=False)
+    embed.add_field(name="leave",value="Leaves the Current voice channel you are in.",
+inline=False)
+    embed.add_field(name="nowplay",value="Shows the current song playing",
+inline=False)
+    embed.add_field(name="queue",value="Shows your playlist.",
+inline=False)
+    embed.add_field(name="remove",value="Removes a song from your playlist. Must use numbers such as !!remove 1",
+inline=False)
+    embed.add_field(name="loop",value="Loops the current song.",
+inline=False)
+    embed.add_field(name="volume",value="Sets the volume of the current song.",
+inline=False)
+    embed.add_field(name="pause",value="Pauses the current song playing.",
+inline=False)
+    embed.add_field(name="resume",value="Resumes the current song playing.",
+inline=False)
+    await ctx.send(embed=embed)
 #outdated snipe thing
 
-#snipe_message_author = {}
+#snipe_message_author = {}  
 #snipe_message_content = {}
 
 #@commands.guild_only()
@@ -506,7 +541,7 @@ async def gif(ctx, *, q="random"):
 
         api_response = api_instance.gifs_search_get(api_key,
                                                     q,
-                                                    limit=5,
+                                                    limit=10,
                                                     rating='g')
         lst = list(api_response.data)
         giff = random.choice(lst)
@@ -524,7 +559,7 @@ async def gif(ctx, *, q="random"):
 async def meme(ctx):
     subreddit = reddit.subreddit("dankmemes")
     all_subs = []
-    top = subreddit.top(limit=50)
+    top = subreddit.top(limit=10)
     for submission in top:
         all_subs.append(submission)
     random_sub = random.choice(all_subs)
@@ -556,7 +591,7 @@ async def on_message_delete(message):
                                                 message.channel.name,
                                                 message.created_at)
 
-
+@commands.guild_only()
 @client.command()
 async def snipe(ctx):
         try:
@@ -576,6 +611,7 @@ async def snipe(ctx):
 
         await ctx.channel.send(embed=embed)
 
+@commands.guild_only()
 @client.command(pass_context = True)
 async def kill(ctx, member: discord.Member):
     kill_messages = [
@@ -587,31 +623,37 @@ async def kill(ctx, member: discord.Member):
     await ctx.send(random.choice(kill_messages))
     await ctx.message.delete()
 
+@commands.guild_only()
 @client.command()
 async def water(ctx):
  await ctx.send('Water is yummy :D I order everyone to drink water RIGHT NOW! xD')
 
+@commands.guild_only()
 @client.command(aliases = ["dc"])
 async def deadchat(ctx):
  await ctx.send('https://tenor.com/view/rip-chat-chat-dead-dead-chat-inactive-gif-18754855')
  await ctx.message.delete()
 
+@commands.guild_only()
 @client.command()
 async def members(ctx):
         embed = discord.Embed(title="", description="", color=0x00FFFF)
         embed.add_field(name="Member Count:", value=f"There are currently **{ctx.guild.member_count}** in **{ctx.guild.name}**!", inline=False)
         await ctx.send(embed=embed)
 
+@commands.guild_only()
 @client.command()
 async def simp(ctx):
   await ctx.send('SIMP!! WE FOUND AN SIMP LMAO xD')
   await ctx.message.delete()
 
+@commands.guild_only()
 @client.command()
 async def drama(ctx):
   await ctx.send('*Grabs popcorn and pop* Nice Drama! I like watching drama! :D')
   await ctx.message.delete()
 
+@commands.guild_only()
 @client.command(pass_context = True,aliases = ["cf"])
 async def coinflip(ctx):
     coin = [
@@ -621,77 +663,78 @@ async def coinflip(ctx):
    
     await ctx.send(random.choice(coin))
 
-
+@commands.guild_only()
 @client.command()
 async def cool(ctx, member: discord.Member):
   await ctx.send(f'{member.mention} {ctx.author.mention} thinks your cool')
   await ctx.message.delete()  
 
-
+@commands.guild_only()
 @client.command(pass_context = True,aliases = ["joke"])
 async def jokes(ctx):
     joke = [
-        f'What do dentists call their x-rays? Tooth pics!', 
-        f'Did you hear about the first restaurant to open on the moon? It had great food, but no atmosphere.',
-        f'What did one ocean say to the other ocean? Nothing, it just waved.',
-        f'Do you want to hear a construction joke? Sorry, I’m still working on it.',
-        f'Did you hear about the fire at the circus? It was in tents',
-        f'What does a nosey pepper do? It gets jalapeño business. ',
-        f'Why was the math teacher late to work? She took the rhombus.',
-        f"I'm really excited for the next autopsy club. It's open Mike night!",
-        f'Where do spiders seek health advice? WebMD.',
-        f'What did Yoda say when he saw himself in 4K? "HDMI."',
-        f"My daughter thinks I don't give her enough privacy. At least that's what she wrote in her diary.",
-        f'A friend of mine got into photographing salmon in different clothing. He said he liked shooting fish in apparel.',
-        f"Why can't you trust an atom? Because they make up everything.",
-        f"I'd like to go to Holland someday. Wooden shoe?",
-        f'The guy that invented the umbrella was gonna call it the brella. But he hesitated.']
+        'What do dentists call their x-rays? Tooth pics!', 
+        'Did you hear about the first restaurant to open on the moon? It had great food, but no atmosphere.',
+        'What did one ocean say to the other ocean? Nothing, it just waved.',
+        'Do you want to hear a construction joke? Sorry, I’m still working on it.',
+        'Did you hear about the fire at the circus? It was in tents',
+        'What does a nosey pepper do? It gets jalapeño business. ',
+        'Why was the math teacher late to work? She took the rhombus.',
+        "I'm really excited for the next autopsy club. It's open Mike night!",
+        'Where do spiders seek health advice? WebMD.',
+        'What did Yoda say when he saw himself in 4K? "HDMI."',
+        "My daughter thinks I don't give her enough privacy. At least that's what she wrote in her diary.",
+        'A friend of mine got into photographing salmon in different clothing. He said he liked shooting fish in apparel.',
+        "Why can't you trust an atom? Because they make up everything.",
+        "I'd like to go to Holland someday. Wooden shoe?",
+        'The guy that invented the umbrella was gonna call it the brella. But he hesitated.']
         
    
     await ctx.send(random.choice(joke))
-
+@commands.guild_only()
 @client.command()
 async def prefix(ctx):
   await ctx.send(f'{ctx.author.mention} the prefix is: !! or just ping me')
 
+@commands.guild_only()
 @client.command(pass_context = True,aliases = ["cb"])
 async def catbug(ctx):
     bug = [
-      f'https://tenor.com/view/catbug-bravest-warriors-love-cute-heart-gif-3457120',
-      f'https://tenor.com/view/loveyou-catbug-bravest-warriors-gif-11992208',
-      f'https://tenor.com/view/yippie-yay-catbug-bravest-warriors-gif-11992784',
-      f'https://tenor.com/view/bravest-warriors-catbug-salute-im-catbug-gif-11992601',
-      f'https://tenor.com/view/catbug-catbug-eating-catbug-eating-cereal-catbug-eating-food-eating-food-gif-21947681',
-      f'https://tenor.com/view/how-dareyou-catbug-bravest-warriors-gif-11992274',
-      f'https://tenor.com/view/sips-tea-drinking-catbug-bravest-warriors-gif-11992251',
-      f'https://tenor.com/view/sad-upset-catbug-bravest-warriors-gif-11992279',
-      f'https://tenor.com/view/sherrif-catbug-bravest-warriors-gif-11992284',
-      f'https://tenor.com/view/heart-eye-catbug-in-love-mermerized-fascinated-gif-12855794',
-      f'https://tenor.com/view/catbug-gif-10835276',
-      f'https://tenor.com/view/catbug-happy-excited-amazed-smile-gif-5294129',
-      f'https://tenor.com/view/catbug-catbug-hug-catbug-cuddle-catbug-hugging-catbug-cuddling-gif-21242363',
-      f'https://tenor.com/view/catbug-cute-cutie-cutie-catbug-catbug-drawing-gif-21232872',
-      f'https://tenor.com/view/peanutbuttersquare-cooldown-catbug-bravestwarriors-gif-5301902',
-      f'https://tenor.com/view/everything-is-okay-cat-bug-gif-4852806',
-      f'https://tenor.com/view/bugcat-capoo-drop-cute-sugar-peas-drop-them-gif-16639572',
-      f'https://tenor.com/view/catbug-rebecca-love-always-gif-5294058',
-      f'https://tenor.com/view/cat-bug-bravest-warriors-why-would-you-do-that-why-gif-4040974',
-      f'https://tenor.com/view/catbug-bravest-warriors-gif-11992204',
-      f'https://tenor.com/view/catbug-bravest-warriors-gif-11992204',
-      f'https://tenor.com/view/catbug-screaming-catbug-love-catbug-electrocuted-gif-7315184',
-      f'https://tenor.com/view/catbug-rebecca-bravestwarriors-who-gif-5294057',
-      f'https://tenor.com/view/catbug-rebecca-shout-twig-gif-9580597',
-      f'https://tenor.com/view/catbug-poke-bravest-warriors-gif-19299751',
-      f'https://tenor.com/view/bravest-warriors-cat-bug-king-cat-bug-reading-read-gif-11992602',
-      f'https://tenor.com/view/catbug-cute-cat-bug-adorable-gif-3420753',
-      f'https://tenor.com/view/rebecca-catbug-marry-cartoon-cartoonhangover-gif-5272230',
-      f'https://tenor.com/view/catbut-gif-10835268',
-      f'https://tenor.com/view/detective-searcking-looking-catbug-bravest-warriors-gif-11992268',
-      f'https://tenor.com/view/gurglies-catbug-bravest-warriors-gif-11992750',
-      f'https://tenor.com/view/clap-clapping-love-it-catbug-cute-gif-3420764',
-      f'https://tenor.com/view/clap-clapping-love-it-catbug-cute-gif-3420764',
-      f'https://tenor.com/view/bravest-warriors-cat-bug-laughing-lol-lmao-gif-7963694',
-      f'https://tenor.com/view/hugs-catbug-bravest-warriors-gif-11992432'
+      'https://tenor.com/view/catbug-bravest-warriors-love-cute-heart-gif-3457120',
+      'https://tenor.com/view/loveyou-catbug-bravest-warriors-gif-11992208',
+      'https://tenor.com/view/yippie-yay-catbug-bravest-warriors-gif-11992784',
+      'https://tenor.com/view/bravest-warriors-catbug-salute-im-catbug-gif-11992601',
+      'https://tenor.com/view/catbug-catbug-eating-catbug-eating-cereal-catbug-eating-food-eating-food-gif-21947681',
+      'https://tenor.com/view/how-dareyou-catbug-bravest-warriors-gif-11992274',
+      'https://tenor.com/view/sips-tea-drinking-catbug-bravest-warriors-gif-11992251',
+      'https://tenor.com/view/sad-upset-catbug-bravest-warriors-gif-11992279',
+      'https://tenor.com/view/sherrif-catbug-bravest-warriors-gif-11992284',
+      'https://tenor.com/view/heart-eye-catbug-in-love-mermerized-fascinated-gif-12855794',
+      'https://tenor.com/view/catbug-gif-10835276',
+      'https://tenor.com/view/catbug-happy-excited-amazed-smile-gif-5294129',
+      'https://tenor.com/view/catbug-catbug-hug-catbug-cuddle-catbug-hugging-catbug-cuddling-gif-21242363',
+      'https://tenor.com/view/catbug-cute-cutie-cutie-catbug-catbug-drawing-gif-21232872',
+      'https://tenor.com/view/peanutbuttersquare-cooldown-catbug-bravestwarriors-gif-5301902',
+      'https://tenor.com/view/everything-is-okay-cat-bug-gif-4852806',
+      'https://tenor.com/view/bugcat-capoo-drop-cute-sugar-peas-drop-them-gif-16639572',
+      'https://tenor.com/view/catbug-rebecca-love-always-gif-5294058',
+      'https://tenor.com/view/cat-bug-bravest-warriors-why-would-you-do-that-why-gif-4040974',
+      'https://tenor.com/view/catbug-bravest-warriors-gif-11992204',
+      'https://tenor.com/view/catbug-bravest-warriors-gif-11992204',
+      'https://tenor.com/view/catbug-screaming-catbug-love-catbug-electrocuted-gif-7315184',
+      'https://tenor.com/view/catbug-rebecca-bravestwarriors-who-gif-5294057',
+      'https://tenor.com/view/catbug-rebecca-shout-twig-gif-9580597',
+      'https://tenor.com/view/catbug-poke-bravest-warriors-gif-19299751',
+      'https://tenor.com/view/bravest-warriors-cat-bug-king-cat-bug-reading-read-gif-11992602',
+      'https://tenor.com/view/catbug-cute-cat-bug-adorable-gif-3420753',
+      'https://tenor.com/view/rebecca-catbug-marry-cartoon-cartoonhangover-gif-5272230',
+      'https://tenor.com/view/catbut-gif-10835268',
+      'https://tenor.com/view/detective-searcking-looking-catbug-bravest-warriors-gif-11992268',
+      'https://tenor.com/view/gurglies-catbug-bravest-warriors-gif-11992750',
+      'https://tenor.com/view/clap-clapping-love-it-catbug-cute-gif-3420764',
+      'https://tenor.com/view/clap-clapping-love-it-catbug-cute-gif-3420764',
+      'https://tenor.com/view/bravest-warriors-cat-bug-laughing-lol-lmao-gif-7963694',
+      'https://tenor.com/view/hugs-catbug-bravest-warriors-gif-11992432'
     ]
     await ctx.send(random.choice(bug))
 
@@ -722,7 +765,292 @@ async def gstart(ctx, time=None,*,prize=None):
         winner = random.choice(users)
 
         await ctx.send(f'YAYYY!! {winner.mention} has won the giveaway for **{prize}**!!')
-        
+
+#for i in range(len(cogs)):
+#    cogs[i].setup(client)
+buttons = [
+    [
+        Button(style=ButtonStyle.grey,label="1"),
+        Button(style=ButtonStyle.grey,label="2"),
+        Button(style=ButtonStyle.grey,label="3"),
+        Button(style=ButtonStyle.blue,label="x"),
+        Button(style=ButtonStyle.red,label="Exit")
+    ],
+    [
+        Button(style=ButtonStyle.grey,label="4"),
+        Button(style=ButtonStyle.grey,label="5"),
+        Button(style=ButtonStyle.grey,label="6"),
+        Button(style=ButtonStyle.blue,label="÷"),
+        Button(style=ButtonStyle.red,label="←")
+    ],
+    [
+        Button(style=ButtonStyle.grey,label="7"),
+        Button(style=ButtonStyle.grey,label="8"),
+        Button(style=ButtonStyle.grey,label="9"),
+        Button(style=ButtonStyle.blue,label="+"),
+        Button(style=ButtonStyle.red,label="Clear")
+    ],
+    [
+        Button(style=ButtonStyle.grey,label="00"),
+        Button(style=ButtonStyle.grey,label="0"),
+        Button(style=ButtonStyle.grey,label="."),
+        Button(style=ButtonStyle.blue,label="-"),
+        Button(style=ButtonStyle.green,label="=")
+    ]    
+]
+
+def calculator(exp):
+    o = exp.replace('x','*',)
+    o = o.replace('÷','/')
+    result = ''
+    try:
+        result=str(eval(o))
+    except:
+        result = 'An error occurred'
+    return result
+
+@commands.guild_only()
+@client.command()
+async def calc(ctx):
+    m = await ctx.send(content="Loading Calculator")
+    expression="None"
+    delta = datetime.datetime.utcnow() + datetime.timedelta(minutes=5)
+    e = discord.Embed(title=f'{ctx.author.name}\'s | {ctx.author.id}',description=expression,timestamp=delta)
+    await m.edit(components=buttons,embed=e)
+    while m.created_at < delta:
+        res = await client.wait_for('button_click')
+        if res.author.id == int(res.message.embed[0].title.split('|')([1]) and res.message.embeds[0].timestamp < delta):
+            expression = res.message.embeds[0].description
+            if expression == 'None' or expression == 'An error orccured':
+                expression = ''
+            if res.component.label == 'Exit':
+                await res.respond(content='Calculator Closed',type=7)
+                break
+            elif res.component.label == '←':
+                expression = expression[:-1]
+            elif res.component.label == 'Clear':
+                expression=None
+            elif res.component.label == '=':
+                expression = calculator(expression)
+            else:
+                expression += res.component.label
+            f=discord.Embed(title=f'{res.author.name}\'s calculator|{res.author.id}', descripion = expression,timestamp = delta)
+            await res.respond(content='',embed=f,component=buttons,type=7)
+
+ch = ["Rock","Paper","Scissors"]
+
+@commands.guild_only()
+@client.command()
+async def rps(ctx):
+    comp = random.choice(ch)
+    yet = discord.Embed(title=f"{ctx.author.display_name}'s Rock Paper Scissors Game!",description=" You haven't clicked on any button yet.")
+    win = discord.Embed(title=f"{ctx.author.display_name}, You **won**!!",description=f"You have **Won!** The bot had chosen {comp}")
+    out = discord.Embed(title=f"{ctx.author.display_name}, you didn't click in time",description="**Timed Out!**")
+    lost = discord.Embed(title=f"{ctx.author.display_name}, You **Lost**!!",description=f"You have **Lost!** The bot had chosen {comp}")
+    tie = discord.Embed(title=f"{ctx.author.display_name}, It was a **tie**!!",description=f"**TIE!** The bot had chosen {comp}")
+ 
+    m = await ctx.send(
+        embed=yet,
+        components=[[Button(style=1, label="rock"),Button(style=3, label="paper"),Button(style=ButtonStyle.red, label="scissors")]
+        ]
+    )
+
+    def check(res):
+        return ctx.author == res.user and res.channel == ctx.channel
+
+    try:
+        res = await bot.wait_for("button_click", check=check, timeout=15)
+        player = res.component.label
+        if player==comp:
+          await m.edit(embed=tie,components=[])
+        if player=="Rock" and comp=="Paper":
+          await m.edit(embed=lost,components=[])
+        if player!="Rock" and comp=="Scissors":
+          await m.edit(embed=win,components=[])
+        if player=="Paper" and comp=="Rock":
+          await m.edit(embed=win,components=[])
+        if player=="Paper" and comp=="Scissors":
+          await m.edit(embed=lost,components=[])
+        if player=="Scissors" and comp!="Rock":
+          await m.edit(embed=lost,components=[])
+        if player=="Scissors" and comp=="Paper":
+          await m.edit(embed=win,components=[])
+
+    except TimeoutError:
+        await m.edit(
+            embed=out,
+            components=[],
+        )       
+
+@commands.guild_only()
+@client.command()
+
+async def button(ctx):
+
+    await ctx.send(
+
+        "Hello, World!",
+
+        components = [
+
+            Button(label = "WOW button!")
+
+        ]
+
+    )
+
+
+
+    interaction = await bot.wait_for("button_click", check = lambda i: i.component.label.startswith("WOW"))
+
+    await interaction.respond(content = "Button clicked!")
+
+#music commands
+@commands.guild_only()
+@client.command()
+async def join(ctx):
+    voicetrue = ctx.author.voice
+    if voicetrue is None:
+        return await ctx.send("You are currently not in a voice channel.")
+    await ctx.author.voice.channel.connect()
+    await ctx.send("Joined your voice channel.")
+
+@commands.guild_only()
+@client.command()
+async def leave(ctx):
+    voicetrue = ctx.author.voice
+    mevoicetrue = ctx.guild.me.voice
+    if voicetrue is None:
+        return await ctx.send("You are currently not in a voice channel.")
+    if mevoicetrue is None:
+        return await ctx.send("I am currently not in a voice channel.")  
+
+    await ctx.voice_client.disconnect()
+    await ctx.send("Left your voice channel.")
+
+@commands.guild_only()
+@client.command()
+async def play(ctx,*,url):
+    player = music.get_player(guild_id=ctx.guild.id)
+    if not player:
+        player = music.create_player(ctx,ffmpeg_error_betterfix=True)
+    if not ctx.voice_client.is_playing():
+        await player.queue(url,search=True)
+        song = await player.play()
+        await ctx.send(f"I have started playing {song.name}")
+    else:
+        song = await player.queue(url,search=True)
+        await ctx.send(f"{song.name} has been added to the playlist.")
+
+@commands.guild_only()
+@client.command()
+async def queue(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    await ctx.send(f"{','.join([song.name for song in player.current_queue()])}")
+    
+@commands.guild_only()    
+@client.command()
+async def pause(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.pause()
+    await ctx.send(f"Paused {song.name}")
+
+@commands.guild_only()
+@client.command()
+async def resume(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.resume()
+    await ctx.send(f"Resumed {song.name}")
+
+@commands.guild_only()
+@client.command()
+async def loop(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.toggle_song_loop()
+    if song.is_looping:
+        return await ctx.send(f"{song.name} is looping")
+    else:
+        return await ctx.send(f"{song.name} is not looping")
+
+@commands.guild_only()
+@client.command(aliases=["np"])
+async def nowplay(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = player.now_playing()
+    await ctx.send(song.name)
+
+@commands.guild_only()
+@client.command()
+async def remove(ctx,index):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.remove_from_queue(int(index))
+    await ctx.send(f'Removed {song.name} from queue!')
+
+@client.command()
+async def skip(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    data = await player.skip(force=True)
+    if len(data) == 2:
+        await ctx.send(f"Skipped from {data[0].name} to {data[1].name}")
+    else:
+        await ctx.send(f"Skipped {data[0].name}")
+
+@client.command()
+async def stop(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    await player.stop()
+    await ctx.send("Stopped")
+
+@client.command()
+async def volume(ctx, vol):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song, volume = await player.change_volume(float(vol) / 100)
+    await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
+
+@client.command(name="eval")
+@commands.is_owner()
+async def eval_fn(ctx, *, code):
+    language_specifiers = ["python", "py", "javascript", "js", "html", "css", "php", "md", "markdown", "go", "golang", "c", "c++", "cpp", "c#", "cs", "csharp", "java", "ruby", "rb", "coffee-script", "coffeescript", "coffee", "bash", "shell", "sh", "json", "http", "pascal", "perl", "rust", "sql", "swift", "vim", "xml", "yaml"]
+    loops = 0
+    while code.startswith("`"):
+        code = "".join(list(code)[1:])
+        loops += 1
+        if loops == 3:
+            loops = 0
+            break
+    for language_specifier in language_specifiers:
+        if code.startswith(language_specifier):
+            code = code.lstrip(language_specifier)
+    while code.endswith("`"):
+        code = "".join(list(code)[0:-1])
+        loops += 1
+        if loops == 3:
+            break
+    code = "\n".join(f"    {i}" for i in code.splitlines()) 
+    code = f"async def eval_expr():\n{code}" 
+    def send(text): 
+        client.loop.create_task(ctx.send(text))
+    env = {
+        "bot": client,
+        "client": client,
+        "ctx": ctx,
+        "print": send,
+        "_author": ctx.author,
+        "_message": ctx.message,
+        "_channel": ctx.channel,
+        "_guild": ctx.guild,
+        "_me": ctx.me
+    }
+    env.update(globals())
+    try:
+        exec(code, env)
+        eval_expr = env["eval_expr"]
+        result = await eval_expr()
+        if result:
+            await ctx.send(result)
+    except:
+        await ctx.send(f"```{traceback.format_exc()}```")
+
 keep_alive()
 my_secret = os.environ['bot_token']
 client.run(my_secret)
