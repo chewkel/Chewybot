@@ -1,6 +1,5 @@
 import os
 import discord
-from discord import client
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions
 from discord_slash import SlashCommand, SlashCommandOptionType, SlashContext
@@ -21,6 +20,7 @@ import json_loader
 from mongo import Document
 from utils import clean_code, Pag
 from datetime import datetime
+import datetime
 from typing import Optional
 import aiohttp
 import time
@@ -30,48 +30,39 @@ from discord.ext.commands import clean_content
 import giphy_client
 from giphy_client.rest import ApiException
 import praw
-import qrcode
+# import qrcode
 #import levelsys
 #import dns
 from discord_components import *
-from discord_components import (
-    DiscordComponents,
-    Button,
-    ButtonStyle,
-    Select,
-    SelectOption,
-)
+#from discord_components import (
+#    DiscordComponents,
+#    Button,
+#    ButtonStyle,
+#    Select,
+#    SelectOption,
+#)
 from asyncio import TimeoutError
 from random import choice
 import DiscordUtils
-
-#cogs = [levelsys]
-
-guidl = guild_ids = [
-    371390722751856640, 843089655976165387, 792426133157183490
-]
+from traceback import format_exception
+import asyncpraw
+import traceback
+from discordTogether import DiscordTogether
+import discordTogether
 
 client = commands.AutoShardedBot(commands.when_mentioned_or('!!'),
                                  help_command=None,
                                  intents=discord.Intents.all(),
                                  cape_insensitive=True)
 
-slash = SlashCommand(client, sync_commands=True)
-
-reddit = praw.Reddit(client_id="sEt_NsT9HvHUkqRfIpTa7A",
-                     client_secret="ohIXFGRUItFUR0z0dA34SP-IuCWGfw",
-                     username="chewkel",
-                     password="mento3384@TATS",
-                     user_agent="chewy")
-
-music = DiscordUtils.Music()
-
+client.load_extension('jishaku')
+togetherControl = DiscordTogether(client)
 
 @client.event
 async def on_ready():
-    DiscordComponents(client)
     print('Chewybug is online :D')
-
+    DiscordComponents(client)
+    await gen_memes() 
     servers = len(client.guilds)
     members = 0
     for guild in client.guilds:
@@ -81,11 +72,61 @@ async def on_ready():
         type=discord.ActivityType.watching,
         name=f'{servers} servers and {members} members | !!help'))
 
+#cogs = [levelsys]
+
+@commands.guild_only()
+@commands.is_owner()
+@client.command()
+async def load(ctx,extension):
+    client.load_extension(f'cogs.{extension}')
+
+@commands.guild_only()
+@commands.is_owner()
+@client.command()
+async def unload(ctx,extension):
+    client.unload_extension(f'cogs.{extension}')
+
+@commands.guild_only()
+@commands.is_owner()
+@client.command()
+async def reload(ctx,extension):
+    client.unload_extension(f'cogs.{extension}')
+    client.load_extension(f'cogs.{extension}')
+
+for filename in os.listdir('./cogs'):
+    if filename.endswith('.py'):
+        client.load_extension(f'cogs.{filename[:-3]}')
+
+guidl = guild_ids = [
+    371390722751856640, 843089655976165387, 792426133157183490
+]
+
+slash = SlashCommand(client, sync_commands=True)
+
+c_id = os.environ['client_id']
+c_secret = os.environ['client_secret']
+rpass = os.environ['rpass']
+
+reddit = asyncpraw.Reddit(client_id=c_id,
+                     client_secret=c_secret,
+                     username="chewkel",
+                     password=rpass,
+                     user_agent="chewy")
+
+music = DiscordUtils.Music()
+
+# @client.event
+# async def on_command_error(ctx, error):
+    # if isinstance(error, commands.MissingPermissions):
+        # await ctx.send("You can't do that. :(")
+    # elif isinstance(error, commands.MissingRequiredArgument):
+        # await ctx.send("Missing arguement")
+    # elif isinstance(error, commands.CommandNotFound):
+        # await ctx.send("Command does not exist sorry.")
 
 @client.event
 async def on_disconnect():
     print('offline...')
-
 
 #@client.event
 #async def on_member_join(member):
@@ -98,83 +139,6 @@ async def on_disconnect():
 #async def on_member_remove(member):
 #  print(f'{member}has left the server.')
 
-
-@commands.guild_only()
-@client.command()
-async def ping(ctx):
-    await ctx.send(
-        f'Ping! Pong! You got a latency of {round  (client.latency * 1000)} ms'
-    )
-
-
-@commands.guild_only()
-@client.command(aliases=['8ball', 'test'])
-async def _8ball(ctx, *, question):
-    responses = [
-        'It is certain.',
-        'It is decidedly so.',
-        'Without a doubt.',
-        'Yes most definitely.',
-        'You may rely on it.',
-        'As I see it, yes.',
-        'Most likely.',
-        'Outlook good.',
-        'Yes.',
-        'Signs point to yes.',
-        'Reply hazy, try again.',
-        'Ask again later.',
-        'Better not tell you now.',
-        'Cannot predict now.',
-        'Concentrate and ask again.',
-        "Don't count on it.",
-        'My reply is a no.',
-        'My sources say no.',
-        'Outlook not so good.',
-        'Very doubtful.',
-        'I will respond later when im less busy with your mom.',
-        "sure, I literally couldn't care less.",
-        'Yes, idiot.',
-        'Can you not?',
-        'Yes, No, Maybe... I dont know, could you repeat the question?',
-        'No... I mean yes... Well... Ask again later.',
-    ]
-    await ctx.send(
-        f'```Question: {question}\nAnswer: {random.choice(responses)}```')
-
-
-@commands.guild_only()
-@client.command()
-async def say(ctx, *, content: str):
-    await ctx.send(content)
-
-
-@commands.guild_only()
-@client.command(pass_context=True)
-async def hmm(ctx):
-    if ctx.message.author.id == 212160821990522881:
-        await ctx.send("hmm")
-
-
-@commands.guild_only()
-@client.command(aliases=['av', 'avatar'])
-async def getpfp(ctx, member: Member = None):
-    if not member:
-        member = ctx.author
-    await ctx.send(member.avatar_url)
-
-
-@commands.guild_only()
-@client.command()
-async def gayrate(ctx):
-    await ctx.send(f"{ctx.author.mention} is {random.randint(0,100)}% gay")
-
-
-@commands.guild_only()
-@client.command(aliases=['lesbianrate', 'lrate'])
-async def lesrate(ctx):
-    await ctx.send(f"{ctx.author.mention} is {random.randint(0,100)}% lesbian")
-
-
 #@commands.guild_only()
 #@client.command(aliases=['calc'])
 #async def calculate(ctx, operation, *nums):
@@ -182,48 +146,6 @@ async def lesrate(ctx):
 #        await ctx.send('Please type a valid operation type.')
 #    var = f' {operation} '.join(nums)
 #    await ctx.send(f'{var} = {eval(var)}')
-
-
-#@commands.guild_only()
-#@client.command(name="eval", aliases=["exec"])
-#@commands.is_owner()
-#async def _eval(ctx, *, code):
-#    code = clean_code(code)
-#
-#    local_variables = {
-#        "discord": discord,
-#        "commands": commands,
-#        "bot": client,
-#        "ctx": ctx,
-#        "channel": ctx.channel,
-#        "author": ctx.author,
-#        "guild": ctx.guild,
-#        "message": ctx.message
-#    }
-#
-    #stdout = io.StringIO()
-#
-  #  try:
-  #      with contextlib.redirect_stdout(stdout):
-  #          exec(
-  #              f"async def func():\n{textwrap.indent(code, '    ')}",
-   #             local_variables,
-   #         )
-#
-   #         obj = await local_variables["func"]()
-  #          result = f"{stdout.getvalue()}\n-- {obj}\n"
-  #  except Exception as e:
-  #      result = "".join(format_exception(e, e, e.__traceback__))
-#
-  #  pager = Pag(
-    #    timeout=100,
-   #     entries=[result[i:i + 2000] for i in range(0, len(result), 2000)],
-   #     length=1,
-  #      prefix="```py\n",
-  #      suffix="```")
-#
- #   await pager.start(ctx)
-
 
 options = [{
     "name": "start",
@@ -246,13 +168,13 @@ options = [{
 #@slash.slash(name="Ping",description = 'Shows bot latency', guild_ids=guidl)
 #async def _ping(ctx):
 #  await ctx.send(f'Ping! Pong! You got a latency of {round  (client.latency * 1000)} ms')
-@commands.guild_only()
-@client.command(pass_context=True)
-async def boom(ctx):
-    if ctx.message.author.id == 212160821990522881:
-        await ctx.send(
-            "Nuking server and deleting all channels and roles. ||This really does nothing||"
-        )
+# @commands.guild_only()
+# @client.command(pass_context=True)
+# async def boom(ctx):
+#     if ctx.message.author.id == 212160821990522881:
+#         await ctx.send(
+#             "Nuking server and deleting all channels and roles. ||This really does nothing||"
+#         )
 
 
 @commands.guild_only()
@@ -336,13 +258,17 @@ async def help2(ctx):
     embed.add_field(name="cool", value="You think that person is cool", inline=False)
     embed.add_field(name="jokes", value="Random lame jokes", inline=False)
     embed.add_field(name="prefix", value="Shows the bot's prefix", inline=False)
-    embed.add_field(name="music", value="Lists out all the music commands available.", inline=False)    
+    embed.add_field(name="musichelp", value="Lists out all the music commands available.", inline=False)
+    embed.add_field(name="tictactoe or ttt",value="ping yourself and someone to play tic tac toe.",
+inline=False)
+    embed.add_field(name="place",value="When playing tic tac toe when it is your turn, do !!place (number) between 1-9 to choose your tile.",
+inline=False)
     embed.set_footer(text="Made by Geeky™#9900")
     await ctx.send(embed=embed)
 
 @commands.guild_only()
 @client.command()
-async def music(ctx):
+async def musichelp(ctx):
     embed = discord.Embed(title="Help",
                           description="Get some help",
                           color=0x34ffcc)
@@ -365,221 +291,47 @@ inline=False)
     embed.add_field(name="resume",value="Resumes the current song playing.",
 inline=False)
     await ctx.send(embed=embed)
-#outdated snipe thing
 
-#snipe_message_author = {}  
-#snipe_message_content = {}
-
-#@commands.guild_only()
-#@client.event
-#async def on_message_delete(message):
-#     snipe_message_author[message.channel.id] = message.author
-#     snipe_message_content[message.channel.id] = message.content
-#     await asyncio.sleep(60)
-#     del snipe_message_author[message.channel.id]
-#     del snipe_message_content[message.channel.id]
-
-#@commands.guild_only()
-#@client.command(name = 'snipe')
-#async def snipe(ctx):
-#    channel = ctx.channel
-#    try:
-#        em = discord.Embed(name = f"Last deleted message in #{channel.name}", description = snipe_message_content[channel.id])
-#        em.set_footer(text = f"This message was sent by {snipe_message_author[channel.id]}")
-#        await ctx.send(embed = em)
-#    except:
-#        await ctx.send(f"There are no recently deleted messages in #{channel.name}")
+all_subs = []
 
 
-@commands.guild_only()
-@client.command()
-async def warn(ctx, member: discord.Member, *, reason):
-    yourID = 212160821990522881
-    friendID = 669690598508199936
-    if ctx.message.author.id == yourID:  #"or ctx.message.author.id == friendID"
-        embed = discord.Embed(color=discord.Colour.green())
-        embed = discord.Embed(
-            title=(f"Succesfully warned {member} for {reason}"))
+async def gen_memes():
+    subreddit = await reddit.subreddit("memes")
+    top = subreddit.top(limit = 200)
+    async for submission in top:
+      all_subs.append(submission)
 
-        embed.set_image(
-            url="https://media.giphy.com/media/BvkQAgMABTiLX3A190/giphy.gif")
-
-        await ctx.send(embed=embed)
-    else:
-        await ctx.send("Bonk no funny warn command for you.")
-
-
-@commands.guild_only()
-@client.command(aliases=["si"])
-async def serverinfo(ctx):
-    name = str(ctx.guild.name)
-    description = str(ctx.guild.description)
-
-    owner = str(ctx.guild.owner)
-    id = str(ctx.guild.id)
-    region = str(ctx.guild.region)
-    memberCount = str(ctx.guild.member_count)
-
-    icon = str(ctx.guild.icon_url)
-
-    embed = discord.Embed(title=name + " Server Information",
-                          description=description,
-                          color=discord.Color.blue())
-    embed.set_thumbnail(url=icon)
-    embed.add_field(name="Owner", value=owner, inline=True)
-    embed.add_field(name="Server ID", value=id, inline=True)
-    embed.add_field(name="Region", value=region, inline=True)
-    embed.add_field(name="Member Count", value=memberCount, inline=True)
-
-    await ctx.send(embed=embed)
-
-
-@commands.guild_only()
-@client.command(name='userinfo')
-async def userinfo(ctx, member: discord.Member):
-    de = pytz.timezone('Europe/London')
-    embed = discord.Embed(title=f' User info for {member} ',
-                          description='',
-                          color=0x4cd137,
-                          timestamp=datetime.now().astimezone(tz=de))
-
-    embed.add_field(name='Name',
-                    value=f'` { member.name }#{ member.discriminator }  `',
-                    inline=True)
-    embed.add_field(name='Bot',
-                    value=f'` { ( "Yes"  if  member.bot  else  "No" ) }  `',
-                    inline=True)
-    embed.add_field(
-        name='Nickname',
-        value=f'` { ( member.nick  if  member.nick  else  "Not set" ) }  `',
-        inline=True)
-    embed.add_field(name='Server joined',
-                    value=f'` { member.joined_at }  `',
-                    inline=True)
-    embed.add_field(name='Discord joined',
-                    value=f'` { member.created_at }  `',
-                    inline=True)
-    embed.add_field(name='roles',
-                    value=f'` { len ( member.roles ) }  `',
-                    inline=True)
-    embed.add_field(name='Highest Role',
-                    value=f'` { member.top_role.name }  `',
-                    inline=True)
-    embed.add_field(name='color', value=f'` { member.color }  `', inline=True)
-    embed.add_field(
-        name='Booster',
-        value=f'` { ( "Yes"  if  member.premium_since  else  "No" ) }  `',
-        inline=True)
-    embed.set_footer(
-        text=f'Required from { ctx.author.name } • { ctx.author.id } ',
-        icon_url=ctx.author.avatar_url)
-    await ctx.send(embed=embed)
-
-
-@commands.guild_only()
-@client.command()
-async def invite(ctx):
-    embed3 = discord.Embed(
-        title="Invite",
-        description=
-        "[Click me to invite](https://discord.com/api/oauth2/authorize?client_id=857350808466227221&permissions=8&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauth%2Fredirect&scope=bot%20applications.commands)",
-        colour=discord.Colour.blue())
-    await ctx.send(embed=embed3)
-
-
-@commands.guild_only()
-@client.command(pass_context=True)
-async def hug(ctx, member: discord.Member):
-    """Hug someone."""
-    embed4 = discord.Embed(title="Huggies!",
-                           description="**{1}** hugs **{0}**!".format(
-                               member.name, ctx.message.author.name),
-                           color=0x176cd5)
-    embed4.set_image(
-        url="https://media.giphy.com/media/MuElm1oRGb3OPlY4Fx/giphy.gif"
-    )
-    await ctx.send(embed=embed4)
-#https://media1.tenor.com/images/0be55a868e05bd369606f3684d95bf1e/tenor.gif?itemid=7939558
-
-@commands.guild_only()
-@client.command(pass_content=True)
-async def pat(ctx, member: discord.Member):
-    embed5 = discord.Embed(title="Pat! Pat!",
-                           description="**{1}** pats **{0}**!".format(
-                               member.name, ctx.message.author.name),
-                           color=0x42f5b9)
-    embed5.set_image(
-        url="https://media.giphy.com/media/kiblLDUFurYI0/giphy.gif")
-    await ctx.send(embed=embed5)
-#https://media.giphy.com/media/5tmRHwTlHAA9WkVxTU/giphy.gif
-#https://tenor.com/view/how-dareyou-catbug-bravest-warriors-gif-11992274
-@commands.guild_only()
-@client.command(pass_content=True)
-async def kiss(ctx, member: discord.Member):
-    embed6 = discord.Embed(title="kiss",
-                           description="**{1}** kisses **{0}**!".format(
-                               member.name, ctx.message.author.name),
-                           color=0xf7196a)
-    embed6.set_image(
-        url="https://media.giphy.com/media/X9j3XWxhLr1TWHJS7C/giphy.gif")
-    await ctx.send(embed=embed6)
-    
-#https://tenor.com/view/bravest-warriors-kiss-beth-tezuya-kill-me-smack-gif-11992603
-#https://media.giphy.com/media/Hht7xfbCiVZ0Q/giphy.gif
-#https://media.giphy.com/media/Hht7xfbCiVZ0Q/giphy.gif
-#https://tenor.com/view/lesbian-lesbians-kiss-gif-13045015
-
-
-@commands.guild_only()
-@client.command()
-async def gif(ctx, *, q="random"):
-
-    api_key = "l5W6oXOiiBDmrKEvxkD2ScZTmlBoQy8B"
-    api_instance = giphy_client.DefaultApi()
-
-    try:
-
-        api_response = api_instance.gifs_search_get(api_key,
-                                                    q,
-                                                    limit=10,
-                                                    rating='g')
-        lst = list(api_response.data)
-        giff = random.choice(lst)
-
-        emb = discord.Embed(title=q)
-        emb.set_image(url=f'https://media.giphy.com/media/{giff.id}/giphy.gif')
-
-        await ctx.channel.send(embed=emb)
-    except ApiException as e:
-        print("Exception when calling DefaultApi->gifs_search_get: %s\n" % e)
-
-
-@commands.guild_only()
-@client.command()
+@client.command(aliases=['memes'])
 async def meme(ctx):
-    subreddit = reddit.subreddit("dankmemes")
-    all_subs = []
-    top = subreddit.top(limit=10)
-    for submission in top:
-        all_subs.append(submission)
     random_sub = random.choice(all_subs)
+    all_subs.remove(random_sub)
     name = random_sub.title
     url = random_sub.url
-    em = discord.Embed(title=name)
-    em.set_image(url=url)
-    await ctx.send(embed=em)
+    ups = random_sub.score
+    link = random_sub.permalink
+    comments = random_sub.num_comments
+    embed = discord.Embed(title=name,url=f"https://reddit.com{link}", color=ctx.author.color)
+    embed.set_image(url=url)
+    embed.set_footer(text = f"👍{ups} 💬{comments}")
+    await ctx.send(embed=embed)
+    
+    if len(all_subs) <= 20:  # meme collection running out owo
+        await gen_memes()
 
-
-@commands.guild_only()
-@client.command()
-async def qr(ctx, *, message):
-    img = qrcode.make(message)
-    img.save("./qrcode.png")
-    qrcodefile = discord.File("./qrcode.png")
-    filename = "qrcode"
-    await ctx.send(message)
-    await ctx.send(file=qrcodefile)
-
+# @commands.guild_only()
+# @client.command()
+# async def meme(ctx):
+#     subreddit = reddit.subreddit("dankmemes")
+#     all_subs = []
+#     top = subreddit.top(limit=10)
+#     for submission in top:
+#         all_subs.append(submission)
+#     random_sub = random.choice(all_subs)
+#     name = random_sub.title
+#     url = random_sub.url
+#     em = discord.Embed(title=name)
+#     em.set_image(url=url)
+#     await ctx.send(embed=em)
 
 client.sniped_messages = {}
 
@@ -610,140 +362,14 @@ async def snipe(ctx):
         embed.set_footer(text=f"Deleted in : #{channel_name}")
 
         await ctx.channel.send(embed=embed)
-
-@commands.guild_only()
-@client.command(pass_context = True)
-async def kill(ctx, member: discord.Member):
-    kill_messages = [
-        f'{ctx.message.author.mention} killed {member.mention} with a baseball bat!', 
-        f'{ctx.message.author.mention} killed {member.mention} with a frying pan!',
-        f'{ctx.message.author.mention} tried to kill {member.mention} by burning his hands off, but {member.mention} pulled a tricky-trick and burnt {ctx.author.mention}\'s hands off instead ;)',
-        f'{ctx.message.author.mention} attempted to murder {member.mention} but .. NAH!'
-    ] 
-    await ctx.send(random.choice(kill_messages))
-    await ctx.message.delete()
-
-@commands.guild_only()
-@client.command()
-async def water(ctx):
- await ctx.send('Water is yummy :D I order everyone to drink water RIGHT NOW! xD')
-
-@commands.guild_only()
-@client.command(aliases = ["dc"])
-async def deadchat(ctx):
- await ctx.send('https://tenor.com/view/rip-chat-chat-dead-dead-chat-inactive-gif-18754855')
- await ctx.message.delete()
-
-@commands.guild_only()
-@client.command()
-async def members(ctx):
-        embed = discord.Embed(title="", description="", color=0x00FFFF)
-        embed.add_field(name="Member Count:", value=f"There are currently **{ctx.guild.member_count}** in **{ctx.guild.name}**!", inline=False)
-        await ctx.send(embed=embed)
-
-@commands.guild_only()
-@client.command()
-async def simp(ctx):
-  await ctx.send('SIMP!! WE FOUND AN SIMP LMAO xD')
-  await ctx.message.delete()
-
-@commands.guild_only()
-@client.command()
-async def drama(ctx):
-  await ctx.send('*Grabs popcorn and pop* Nice Drama! I like watching drama! :D')
-  await ctx.message.delete()
-
-@commands.guild_only()
-@client.command(pass_context = True,aliases = ["cf"])
-async def coinflip(ctx):
-    coin = [
-        f'Head', 
-        f'Tails',f'oops it fell']
         
-   
-    await ctx.send(random.choice(coin))
-
 @commands.guild_only()
-@client.command()
-async def cool(ctx, member: discord.Member):
-  await ctx.send(f'{member.mention} {ctx.author.mention} thinks your cool')
-  await ctx.message.delete()  
-
-@commands.guild_only()
-@client.command(pass_context = True,aliases = ["joke"])
-async def jokes(ctx):
-    joke = [
-        'What do dentists call their x-rays? Tooth pics!', 
-        'Did you hear about the first restaurant to open on the moon? It had great food, but no atmosphere.',
-        'What did one ocean say to the other ocean? Nothing, it just waved.',
-        'Do you want to hear a construction joke? Sorry, I’m still working on it.',
-        'Did you hear about the fire at the circus? It was in tents',
-        'What does a nosey pepper do? It gets jalapeño business. ',
-        'Why was the math teacher late to work? She took the rhombus.',
-        "I'm really excited for the next autopsy club. It's open Mike night!",
-        'Where do spiders seek health advice? WebMD.',
-        'What did Yoda say when he saw himself in 4K? "HDMI."',
-        "My daughter thinks I don't give her enough privacy. At least that's what she wrote in her diary.",
-        'A friend of mine got into photographing salmon in different clothing. He said he liked shooting fish in apparel.',
-        "Why can't you trust an atom? Because they make up everything.",
-        "I'd like to go to Holland someday. Wooden shoe?",
-        'The guy that invented the umbrella was gonna call it the brella. But he hesitated.']
-        
-   
-    await ctx.send(random.choice(joke))
-@commands.guild_only()
-@client.command()
-async def prefix(ctx):
-  await ctx.send(f'{ctx.author.mention} the prefix is: !! or just ping me')
-
-@commands.guild_only()
-@client.command(pass_context = True,aliases = ["cb"])
-async def catbug(ctx):
-    bug = [
-      'https://tenor.com/view/catbug-bravest-warriors-love-cute-heart-gif-3457120',
-      'https://tenor.com/view/loveyou-catbug-bravest-warriors-gif-11992208',
-      'https://tenor.com/view/yippie-yay-catbug-bravest-warriors-gif-11992784',
-      'https://tenor.com/view/bravest-warriors-catbug-salute-im-catbug-gif-11992601',
-      'https://tenor.com/view/catbug-catbug-eating-catbug-eating-cereal-catbug-eating-food-eating-food-gif-21947681',
-      'https://tenor.com/view/how-dareyou-catbug-bravest-warriors-gif-11992274',
-      'https://tenor.com/view/sips-tea-drinking-catbug-bravest-warriors-gif-11992251',
-      'https://tenor.com/view/sad-upset-catbug-bravest-warriors-gif-11992279',
-      'https://tenor.com/view/sherrif-catbug-bravest-warriors-gif-11992284',
-      'https://tenor.com/view/heart-eye-catbug-in-love-mermerized-fascinated-gif-12855794',
-      'https://tenor.com/view/catbug-gif-10835276',
-      'https://tenor.com/view/catbug-happy-excited-amazed-smile-gif-5294129',
-      'https://tenor.com/view/catbug-catbug-hug-catbug-cuddle-catbug-hugging-catbug-cuddling-gif-21242363',
-      'https://tenor.com/view/catbug-cute-cutie-cutie-catbug-catbug-drawing-gif-21232872',
-      'https://tenor.com/view/peanutbuttersquare-cooldown-catbug-bravestwarriors-gif-5301902',
-      'https://tenor.com/view/everything-is-okay-cat-bug-gif-4852806',
-      'https://tenor.com/view/bugcat-capoo-drop-cute-sugar-peas-drop-them-gif-16639572',
-      'https://tenor.com/view/catbug-rebecca-love-always-gif-5294058',
-      'https://tenor.com/view/cat-bug-bravest-warriors-why-would-you-do-that-why-gif-4040974',
-      'https://tenor.com/view/catbug-bravest-warriors-gif-11992204',
-      'https://tenor.com/view/catbug-bravest-warriors-gif-11992204',
-      'https://tenor.com/view/catbug-screaming-catbug-love-catbug-electrocuted-gif-7315184',
-      'https://tenor.com/view/catbug-rebecca-bravestwarriors-who-gif-5294057',
-      'https://tenor.com/view/catbug-rebecca-shout-twig-gif-9580597',
-      'https://tenor.com/view/catbug-poke-bravest-warriors-gif-19299751',
-      'https://tenor.com/view/bravest-warriors-cat-bug-king-cat-bug-reading-read-gif-11992602',
-      'https://tenor.com/view/catbug-cute-cat-bug-adorable-gif-3420753',
-      'https://tenor.com/view/rebecca-catbug-marry-cartoon-cartoonhangover-gif-5272230',
-      'https://tenor.com/view/catbut-gif-10835268',
-      'https://tenor.com/view/detective-searcking-looking-catbug-bravest-warriors-gif-11992268',
-      'https://tenor.com/view/gurglies-catbug-bravest-warriors-gif-11992750',
-      'https://tenor.com/view/clap-clapping-love-it-catbug-cute-gif-3420764',
-      'https://tenor.com/view/clap-clapping-love-it-catbug-cute-gif-3420764',
-      'https://tenor.com/view/bravest-warriors-cat-bug-laughing-lol-lmao-gif-7963694',
-      'https://tenor.com/view/hugs-catbug-bravest-warriors-gif-11992432'
-    ]
-    await ctx.send(random.choice(bug))
-
-@commands.guild_only()
-@client.command(alises = ["gcreaate"])
+@client.command(aliases = ["gcreate"])
 async def gstart(ctx, time=None,*,prize=None):
     yourID = 212160821990522881
     friendID = 719587928501649449
-    if ctx.message.author.id == yourID or ctx.message.author.id == friendID:
+    friendID2 = 573664306626035732
+    if ctx.message.author.id == yourID or ctx.message.author.id == friendID or ctx.message.author.id == friendID2:
         if time == None:
             return await ctx.send("Please include a time.")
         if prize == None:
@@ -796,11 +422,11 @@ buttons = [
         Button(style=ButtonStyle.grey,label="."),
         Button(style=ButtonStyle.blue,label="-"),
         Button(style=ButtonStyle.green,label="=")
-    ]    
+    ],
 ]
 
 def calculator(exp):
-    o = exp.replace('x','*',)
+    o = exp.replace('x','*')
     o = o.replace('÷','/')
     result = ''
     try:
@@ -819,7 +445,7 @@ async def calc(ctx):
     await m.edit(components=buttons,embed=e)
     while m.created_at < delta:
         res = await client.wait_for('button_click')
-        if res.author.id == int(res.message.embed[0].title.split('|')([1]) and res.message.embeds[0].timestamp < delta):
+        if res.author.id == int(res.message.embed[0].title.split('|')[1]) and res.message.embeds[0].timestamp < delta:
             expression = res.message.embeds[0].description
             if expression == 'None' or expression == 'An error orccured':
                 expression = ''
@@ -859,7 +485,7 @@ async def rps(ctx):
         return ctx.author == res.user and res.channel == ctx.channel
 
     try:
-        res = await bot.wait_for("button_click", check=check, timeout=15)
+        res = await client.wait_for("button_click", check=check, timeout=15)
         player = res.component.label
         if player==comp:
           await m.edit(embed=tie,components=[])
@@ -880,12 +506,12 @@ async def rps(ctx):
         await m.edit(
             embed=out,
             components=[],
-        )       
+        )           
 
 @commands.guild_only()
 @client.command()
 
-async def button(ctx):
+async def bt(ctx):
 
     await ctx.send(
 
@@ -901,116 +527,14 @@ async def button(ctx):
 
 
 
-    interaction = await bot.wait_for("button_click", check = lambda i: i.component.label.startswith("WOW"))
+    interaction = await client.wait_for("button_click", check = lambda i: i.component.label.startswith("WOW"))
 
     await interaction.respond(content = "Button clicked!")
-
-#music commands
-@commands.guild_only()
-@client.command()
-async def join(ctx):
-    voicetrue = ctx.author.voice
-    if voicetrue is None:
-        return await ctx.send("You are currently not in a voice channel.")
-    await ctx.author.voice.channel.connect()
-    await ctx.send("Joined your voice channel.")
-
-@commands.guild_only()
-@client.command()
-async def leave(ctx):
-    voicetrue = ctx.author.voice
-    mevoicetrue = ctx.guild.me.voice
-    if voicetrue is None:
-        return await ctx.send("You are currently not in a voice channel.")
-    if mevoicetrue is None:
-        return await ctx.send("I am currently not in a voice channel.")  
-
-    await ctx.voice_client.disconnect()
-    await ctx.send("Left your voice channel.")
-
-@commands.guild_only()
-@client.command()
-async def play(ctx,*,url):
-    player = music.get_player(guild_id=ctx.guild.id)
-    if not player:
-        player = music.create_player(ctx,ffmpeg_error_betterfix=True)
-    if not ctx.voice_client.is_playing():
-        await player.queue(url,search=True)
-        song = await player.play()
-        await ctx.send(f"I have started playing {song.name}")
-    else:
-        song = await player.queue(url,search=True)
-        await ctx.send(f"{song.name} has been added to the playlist.")
-
-@commands.guild_only()
-@client.command()
-async def queue(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    await ctx.send(f"{','.join([song.name for song in player.current_queue()])}")
-    
-@commands.guild_only()    
-@client.command()
-async def pause(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.pause()
-    await ctx.send(f"Paused {song.name}")
-
-@commands.guild_only()
-@client.command()
-async def resume(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.resume()
-    await ctx.send(f"Resumed {song.name}")
-
-@commands.guild_only()
-@client.command()
-async def loop(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.toggle_song_loop()
-    if song.is_looping:
-        return await ctx.send(f"{song.name} is looping")
-    else:
-        return await ctx.send(f"{song.name} is not looping")
-
-@commands.guild_only()
-@client.command(aliases=["np"])
-async def nowplay(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = player.now_playing()
-    await ctx.send(song.name)
-
-@commands.guild_only()
-@client.command()
-async def remove(ctx,index):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.remove_from_queue(int(index))
-    await ctx.send(f'Removed {song.name} from queue!')
-
-@client.command()
-async def skip(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    data = await player.skip(force=True)
-    if len(data) == 2:
-        await ctx.send(f"Skipped from {data[0].name} to {data[1].name}")
-    else:
-        await ctx.send(f"Skipped {data[0].name}")
-
-@client.command()
-async def stop(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    await player.stop()
-    await ctx.send("Stopped")
-
-@client.command()
-async def volume(ctx, vol):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song, volume = await player.change_volume(float(vol) / 100)
-    await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
 
 @client.command(name="eval")
 @commands.is_owner()
 async def eval_fn(ctx, *, code):
-    language_specifiers = ["python", "py", "javascript", "js", "html", "css", "php", "md", "markdown", "go", "golang", "c", "c++", "cpp", "c#", "cs", "csharp", "java", "ruby", "rb", "coffee-script", "coffeescript", "coffee", "bash", "shell", "sh", "json", "http", "pascal", "perl", "rust", "sql", "swift", "vim", "xml", "yaml"]
+    language_specifiers = ["python", "py", "javascript", "js", "html", "css", "php", "md", "markdown", "go", "golang", "c", "c++", "cpp", "c#", "cs", "csharp", "java", "ruby", "rb", "coffee-script", "coffeescript", "coffee", "bash", "shell", "sh", "json", "http", "pascal", "perl", "rust", "sql", "swift", "vim", "xml", "yaml" , "txt"]
     loops = 0
     while code.startswith("`"):
         code = "".join(list(code)[1:])
@@ -1050,6 +574,386 @@ async def eval_fn(ctx, *, code):
             await ctx.send(result)
     except:
         await ctx.send(f"```{traceback.format_exc()}```")
+
+@client.command()
+async def servers(self, ctx):
+    activeservers = client.guilds
+    for guild in activeservers:
+        await ctx.send(guild.name)
+        print(guild.name)
+
+embedOne = discord.Embed(
+    title = "Page #1", #Any title will do
+    description = "This is page one!" #Any description will be fine
+)
+embedTwo = discord.Embed(
+    title = "Page #2",
+    description = "This is page two!"
+)
+embedThree = discord.Embed(
+    title = "Page #3",
+    description = "This is page three!"
+)
+#Get all embeds into a list
+paginationList = [embedOne, embedTwo, embedThree] #Just append all embed names in here, in the right order ofcourse
+
+#Main command
+@client.command(
+    name = "pagination",
+    aliases = ["pages"]
+)
+async def pagination(ctx):
+    #Sets a default embed
+    current = 0
+    #Sending first message
+    #I used ctx.reply, you can use simply send as well
+    mainMessage = await ctx.reply(
+        "**Pagination!**",
+        embed = paginationList[current],
+        components = [ #Use any button style you wish to :)
+            [
+                Button(
+                    label = "Prev",
+                    id = "back",
+                    style = ButtonStyle.red
+                ),
+                Button(
+                    label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
+                    id = "cur",
+                    style = ButtonStyle.grey,
+                    disabled = True
+                ),
+                Button(
+                    label = "Next",
+                    id = "front",
+                    style = ButtonStyle.red
+                )
+            ]
+        ]
+    )
+    #Infinite loop
+    while True:
+        #Try and except blocks to catch timeout and break
+        try:
+            interaction = await client.wait_for(
+                "button_click",
+                check = lambda i: i.component.id in ["back", "front"], #You can add more
+                timeout = 10.0 #10 seconds of inactivity
+            )
+            #Getting the right list index
+            if interaction.component.id == "back":
+                current -= 1
+            elif interaction.component.id == "front":
+                current += 1
+            #If its out of index, go back to start / end
+            if current == len(paginationList):
+                current = 0
+            elif current < 0:
+                current = len(paginationList) - 1
+
+            await interaction.respond(
+                type = InteractionType.UpdateMessage,
+                embed = paginationList[current],
+                components = [ #Use any button style you wish to :)
+                    [
+                        Button(
+                            label = "Prev",
+                            id = "back",
+                            style = ButtonStyle.red
+                        ),
+                        Button(
+                            label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
+                            id = "cur",
+                            style = ButtonStyle.grey,
+                            disabled = True
+                        ),
+                        Button(
+                            label = "Next",
+                            id = "front",
+                            style = ButtonStyle.red
+                        )
+                    ]
+                ]
+            )
+        except asyncio.TimeoutError:
+            #Disable and get outta here
+            await mainMessage.edit(
+                components = [
+                    [
+                        Button(
+                            label = "Prev",
+                            id = "back",
+                            style = ButtonStyle.red,
+                            disabled = True
+                        ),
+                        Button(
+                            label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
+                            id = "cur",
+                            style = ButtonStyle.grey,
+                            disabled = True
+                        ),
+                        Button(
+                            label = "Next",
+                            id = "front",
+                            style = ButtonStyle.red,
+                            disabled = True
+                        )
+                    ]
+                ]
+            )
+            break
+
+player1 = ""
+player2 = ""
+turn = ""
+gameOver = True
+
+board = []
+
+winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+]
+
+@client.command(aliases=["ttt"])
+async def tictactoe(ctx, p1: discord.Member, p2: discord.Member):
+    global count
+    global player1
+    global player2
+    global turn
+    global gameOver
+
+    if gameOver:
+        global board
+        board = [":white_large_square:", ":white_large_square:", ":white_large_square:",
+                 ":white_large_square:", ":white_large_square:", ":white_large_square:",
+                 ":white_large_square:", ":white_large_square:", ":white_large_square:"]
+        turn = ""
+        gameOver = False
+        count = 0
+
+        player1 = p1
+        player2 = p2
+
+        # print the board
+        line = ""
+        for x in range(len(board)):
+            if x == 2 or x == 5 or x == 8:
+                line += " " + board[x]
+                await ctx.send(line)
+                line = ""
+            else:
+                line += " " + board[x]
+
+        # determine who goes first
+        num = random.randint(1, 2)
+        if num == 1:
+            turn = player1
+            await ctx.send("It is <@" + str(player1.id) + ">'s turn.")
+        elif num == 2:
+            turn = player2
+            await ctx.send("It is <@" + str(player2.id) + ">'s turn.")
+    else:
+        await ctx.send("A game is already in progress! Finish it before starting a new one.")
+
+@client.command()
+async def place(ctx, pos: int):
+    global turn
+    global player1
+    global player2
+    global board
+    global count
+    global gameOver
+
+    if not gameOver:
+        mark = ""
+        if turn == ctx.author:
+            if turn == player1:
+                mark = ":regional_indicator_x:"
+            elif turn == player2:
+                mark = ":o2:"
+            if 0 < pos < 10 and board[pos - 1] == ":white_large_square:" :
+                board[pos - 1] = mark
+                count += 1
+
+                # print the board
+                line = ""
+                for x in range(len(board)):
+                    if x == 2 or x == 5 or x == 8:
+                        line += " " + board[x]
+                        await ctx.send(line)
+                        line = ""
+                    else:
+                        line += " " + board[x]
+
+                checkWinner(winningConditions, mark)
+                print(count)
+                if gameOver == True:
+                    await ctx.send(mark + " wins!")
+                elif count >= 9:
+                    gameOver = True
+                    await ctx.send("It's a tie!")
+
+                # switch turns
+                if turn == player1:
+                    turn = player2
+                elif turn == player2:
+                    turn = player1
+            else:
+                await ctx.send("Be sure to choose an integer between 1 and 9 (inclusive) and an unmarked tile.")
+        else:
+            await ctx.send("It is not your turn.")
+    else:
+        await ctx.send("Please start a new game using the !tictactoe command.")
+
+
+def checkWinner(winningConditions, mark):
+    global gameOver
+    for condition in winningConditions:
+        if board[condition[0]] == mark and board[condition[1]] == mark and board[condition[2]] == mark:
+            gameOver = True
+
+@tictactoe.error
+async def tictactoe_error(ctx, error):
+    print(error)
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please mention 2 players for this command.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send("Please make sure to mention/ping players (ie. <@688534433879556134>).")
+
+@place.error
+async def place_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please enter a position you would like to mark.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send("Please make sure to enter an integer.")
+
+@client.command()
+async def join(ctx):
+    await ctx.author.voice.channel.connect() #Joins author's voice channel
+    
+@client.command()
+async def leave(ctx):
+    await ctx.voice_client.disconnect()
+    
+@client.command()
+async def play(ctx, *, url):
+    player = music.get_player(guild_id=ctx.guild.id)
+    if not player:
+        player = music.create_player(ctx, ffmpeg_error_betterfix=True)
+    if not ctx.voice_client.is_playing():
+        await player.queue(url, search=True)
+        song = await player.play()
+        await ctx.send(f"Playing {song.name}")
+    else:
+        song = await player.queue(url, search=True)
+        await ctx.send(f"Queued {song.name}")
+        
+@client.command()
+async def pause(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.pause()
+    await ctx.send(f"Paused {song.name}")
+    
+@client.command()
+async def resume(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.resume()
+    await ctx.send(f"Resumed {song.name}")
+    
+@client.command()
+async def stop(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    await player.stop()
+    await ctx.send("Stopped")
+    
+@client.command()
+async def loop(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.toggle_song_loop()
+    if song.is_looping:
+        await ctx.send(f"Enabled loop for {song.name}")
+    else:
+        await ctx.send(f"Disabled loop for {song.name}")
+    
+@client.command()
+async def queue(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    await ctx.send(f"{', '.join([song.name for song in player.current_queue()])}")
+    
+@client.command()
+async def np(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = player.now_playing()
+    await ctx.send(song.name)
+    
+@client.command()
+async def skip(ctx):
+    player = music.get_player(guild_id=ctx.guild.id)
+    data = await player.skip(force=True)
+    if len(data) == 2:
+        await ctx.send(f"Skipped from {data[0].name} to {data[1].name}")
+    else:
+        await ctx.send(f"Skipped {data[0].name}")
+
+@client.command()
+async def volume(ctx, vol):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
+    await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
+    
+@client.command()
+async def remove(ctx, index):
+    player = music.get_player(guild_id=ctx.guild.id)
+    song = await player.remove_from_queue(int(index))
+    await ctx.send(f"Removed {song.name} from queue")
+
+@client.command(aliases=["yt"])
+async def startyt(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'youtube')
+    await ctx.send(f"Click the blue link!\n{link}")
+
+@client.command(aliases=["poker","pk"])
+async def startpoker(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'poker')
+    await ctx.send(f"Click the blue link!\n{link}")
+
+@client.command(aliases=["chess"])
+async def startchess(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'chess')
+    await ctx.send(f"Click the blue link!\n{link}")
+
+@client.command(aliases=["bet"])
+async def startbt(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'betrayal')
+    await ctx.send(f"Click the blue link!\n{link}")
+
+@client.command(aliases=["fish"])
+async def startfish(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'fishing')
+    await ctx.send(f"Click the blue link!\n{link}")
+
+@client.command(aliases=["lt"])
+async def startlt(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'letter-tile')
+    await ctx.send(f"Click the blue link!\n{link}")
+
+@client.command(aliases=["ws"])
+async def startws(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'word-snack')
+    await ctx.send(f"Click the blue link!\n{link}")
+
+@client.command(aliases=["dcr"])
+async def startdcr(ctx):
+    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'doodle-crew')
+    await ctx.send(f"Click the blue link!\n{link}")
+
 
 keep_alive()
 my_secret = os.environ['bot_token']
