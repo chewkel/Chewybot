@@ -129,6 +129,16 @@ class utility(commands.Cog):
     async def prefix(self,ctx):
         await ctx.send(f'{ctx.author.mention} the prefix is: !! or just ping me')
 
+    @commands.command()
+    async def banner(self,ctx, user:discord.Member):
+        if user == None:
+            user = ctx.author
+        req = await self.client.http.request(discord.http.Route("GET", "/users/{uid}", uid=user.id))
+        banner_id = req["banner"]
+    # If statement because the user may not have a banner
+        if banner_id:
+            banner_url = f"https://cdn.discordapp.com/banners/{user.id}/{banner_id}?size=1024"
+        await ctx.send(f"{banner_url}")
 
 def setup(client):
     client.add_cog(utility(client))
