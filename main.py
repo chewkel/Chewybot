@@ -16,7 +16,7 @@ import discord
 from pathlib import Path
 import motor.motor_asyncio
 from discord.ext import commands
-import json_loader
+# import json_loader
 # from mongo import Document
 # from utils import clean_code, Pag
 from datetime import datetime
@@ -27,9 +27,9 @@ import time
 import asyncio
 import pytz
 from discord.ext.commands import clean_content
-import giphy_client
-from giphy_client.rest import ApiException
-import praw
+# import giphy_client
+# from giphy_client.rest import ApiException
+# import praw
 # import qrcode
 #import levelsys
 #import dns
@@ -350,50 +350,50 @@ async def gstart(ctx, time=None,*,prize=None):
 #             f=discord.Embed(title=f'{res.author.name}\'s calculator|{res.author.id}', descripion = expression,timestamp = delta)
 #             await res.respond(content='',embed=f,component=buttons,type=7)
 
-ch = ["Rock","Paper","Scissors"]
+# ch = ["Rock","Paper","Scissors"]
 
-@commands.guild_only()
-@client.command()
-async def rps(ctx):
-    comp = random.choice(ch)
-    yet = discord.Embed(title=f"{ctx.author.display_name}'s Rock Paper Scissors Game!",description=" You haven't clicked on any button yet.")
-    win = discord.Embed(title=f"{ctx.author.display_name}, You **won**!!",description=f"You have **Won!** The bot had chosen {comp}")
-    out = discord.Embed(title=f"{ctx.author.display_name}, you didn't click in time",description="**Timed Out!**")
-    lost = discord.Embed(title=f"{ctx.author.display_name}, You **Lost**!!",description=f"You have **Lost!** The bot had chosen {comp}")
-    tie = discord.Embed(title=f"{ctx.author.display_name}, It was a **tie**!!",description=f"**TIE!** The bot had chosen {comp}")
+# @commands.guild_only()
+# @client.command()
+# async def rps(ctx):
+#     comp = random.choice(ch)
+#     yet = discord.Embed(title=f"{ctx.author.display_name}'s Rock Paper Scissors Game!",description=" You haven't clicked on any button yet.")
+#     win = discord.Embed(title=f"{ctx.author.display_name}, You **won**!!",description=f"You have **Won!** The bot had chosen {comp}")
+#     out = discord.Embed(title=f"{ctx.author.display_name}, you didn't click in time",description="**Timed Out!**")
+#     lost = discord.Embed(title=f"{ctx.author.display_name}, You **Lost**!!",description=f"You have **Lost!** The bot had chosen {comp}")
+#     tie = discord.Embed(title=f"{ctx.author.display_name}, It was a **tie**!!",description=f"**TIE!** The bot had chosen {comp}")
  
-    m = await ctx.send(
-        embed=yet,
-        components=[[Button(style=1, label="rock"),Button(style=3, label="paper"),Button(style=ButtonStyle.red, label="scissors")]
-        ]
-    )
+#     m = await ctx.send(
+#         embed=yet,
+#         components=[[Button(style=1, label="rock"),Button(style=3, label="paper"),Button(style=ButtonStyle.red, label="scissors")]
+#         ]
+#     )
 
-    def check(res):
-        return ctx.author == res.user and res.channel == ctx.channel
+#     def check(res):
+#         return ctx.author == res.user and res.channel == ctx.channel
 
-    try:
-        res = await client.wait_for("button_click", check=check, timeout=15)
-        player = res.component.label
-        if player==comp:
-          await m.edit(embed=tie,components=[])
-        if player=="Rock" and comp=="Paper":
-          await m.edit(embed=lost,components=[])
-        if player!="Rock" and comp=="Scissors":
-          await m.edit(embed=win,components=[])
-        if player=="Paper" and comp=="Rock":
-          await m.edit(embed=win,components=[])
-        if player=="Paper" and comp=="Scissors":
-          await m.edit(embed=lost,components=[])
-        if player=="Scissors" and comp!="Rock":
-          await m.edit(embed=lost,components=[])
-        if player=="Scissors" and comp=="Paper":
-          await m.edit(embed=win,components=[])
+#     try:
+#         res = await client.wait_for("button_click", check=check, timeout=15)
+#         player = res.component.label
+#         if player==comp:
+#           await m.edit(embed=tie,components=[])
+#         if player=="Rock" and comp=="Paper":
+#           await m.edit(embed=lost,components=[])
+#         if player!="Rock" and comp=="Scissors":
+#           await m.edit(embed=win,components=[])
+#         if player=="Paper" and comp=="Rock":
+#           await m.edit(embed=win,components=[])
+#         if player=="Paper" and comp=="Scissors":
+#           await m.edit(embed=lost,components=[])
+#         if player=="Scissors" and comp!="Rock":
+#           await m.edit(embed=lost,components=[])
+#         if player=="Scissors" and comp=="Paper":
+#           await m.edit(embed=win,components=[])
 
-    except TimeoutError:
-        await m.edit(
-            embed=out,
-            components=[],
-        )           
+#     except TimeoutError:
+#         await m.edit(
+#             embed=out,
+#             components=[],
+#         )           
 
 @commands.guild_only()
 @client.command()
@@ -418,177 +418,177 @@ async def bt(ctx):
 
     await interaction.respond(content = "Button clicked!")
 
-@client.command(name="eval")
-@commands.is_owner()
-async def eval_fn(ctx, *, code):
-    language_specifiers = ["python", "py", "javascript", "js", "html", "css", "php", "md", "markdown", "go", "golang", "c", "c++", "cpp", "c#", "cs", "csharp", "java", "ruby", "rb", "coffee-script", "coffeescript", "coffee", "bash", "shell", "sh", "json", "http", "pascal", "perl", "rust", "sql", "swift", "vim", "xml", "yaml" , "txt"]
-    loops = 0
-    while code.startswith("`"):
-        code = "".join(list(code)[1:])
-        loops += 1
-        if loops == 3:
-            loops = 0
-            break
-    for language_specifier in language_specifiers:
-        if code.startswith(language_specifier):
-            code = code.lstrip(language_specifier)
-    while code.endswith("`"):
-        code = "".join(list(code)[0:-1])
-        loops += 1
-        if loops == 3:
-            break
-    code = "\n".join(f"    {i}" for i in code.splitlines()) 
-    code = f"async def eval_expr():\n{code}" 
-    def send(text): 
-        client.loop.create_task(ctx.send(text))
-    env = {
-        "bot": client,
-        "client": client,
-        "ctx": ctx,
-        "print": send,
-        "_author": ctx.author,
-        "_message": ctx.message,
-        "_channel": ctx.channel,
-        "_guild": ctx.guild,
-        "_me": ctx.me
-    }
-    env.update(globals())
-    try:
-        exec(code, env)
-        eval_expr = env["eval_expr"]
-        result = await eval_expr()
-        if result:
-            await ctx.send(result)
-    except:
-        await ctx.send(f"```{traceback.format_exc()}```")
+# @client.command(name="eval")
+# @commands.is_owner()
+# async def eval_fn(ctx, *, code):
+#     language_specifiers = ["python", "py", "javascript", "js", "html", "css", "php", "md", "markdown", "go", "golang", "c", "c++", "cpp", "c#", "cs", "csharp", "java", "ruby", "rb", "coffee-script", "coffeescript", "coffee", "bash", "shell", "sh", "json", "http", "pascal", "perl", "rust", "sql", "swift", "vim", "xml", "yaml" , "txt"]
+#     loops = 0
+#     while code.startswith("`"):
+#         code = "".join(list(code)[1:])
+#         loops += 1
+#         if loops == 3:
+#             loops = 0
+#             break
+#     for language_specifier in language_specifiers:
+#         if code.startswith(language_specifier):
+#             code = code.lstrip(language_specifier)
+#     while code.endswith("`"):
+#         code = "".join(list(code)[0:-1])
+#         loops += 1
+#         if loops == 3:
+#             break
+#     code = "\n".join(f"    {i}" for i in code.splitlines()) 
+#     code = f"async def eval_expr():\n{code}" 
+#     def send(text): 
+#         client.loop.create_task(ctx.send(text))
+#     env = {
+#         "bot": client,
+#         "client": client,
+#         "ctx": ctx,
+#         "print": send,
+#         "_author": ctx.author,
+#         "_message": ctx.message,
+#         "_channel": ctx.channel,
+#         "_guild": ctx.guild,
+#         "_me": ctx.me
+#     }
+#     env.update(globals())
+#     try:
+#         exec(code, env)
+#         eval_expr = env["eval_expr"]
+#         result = await eval_expr()
+#         if result:
+#             await ctx.send(result)
+#     except:
+#         await ctx.send(f"```{traceback.format_exc()}```")
 
-@client.command()
-async def servers(ctx):
-    activeservers = client.guilds
-    for guild in activeservers:
-        await ctx.send(guild.name)
-        print(guild.name)
+# @client.command()
+# async def servers(ctx):
+#     activeservers = client.guilds
+#     for guild in activeservers:
+#         await ctx.send(guild.name)
+#         print(guild.name)
 
-embedOne = discord.Embed(
-    title = "Page #1", #Any title will do
-    description = "This is page one!" #Any description will be fine
-)
-embedTwo = discord.Embed(
-    title = "Page #2",
-    description = "This is page two!"
-)
-embedThree = discord.Embed(
-    title = "Page #3",
-    description = "This is page three!"
-)
-#Get all embeds into a list
-paginationList = [embedOne, embedTwo, embedThree] #Just append all embed names in here, in the right order ofcourse
+# embedOne = discord.Embed(
+#     title = "Page #1", #Any title will do
+#     description = "This is page one!" #Any description will be fine
+# # )
+# embedTwo = discord.Embed(
+#     title = "Page #2",
+#     description = "This is page two!"
+# )
+# embedThree = discord.Embed(
+#     title = "Page #3",
+#     description = "This is page three!"
+# )
+# #Get all embeds into a list
+# paginationList = [embedOne, embedTwo, embedThree] #Just append all embed names in here, in the right order ofcourse
 
-#Main command
-@client.command(
-    name = "pagination",
-    aliases = ["pages"]
-)
-async def pagination(ctx):
-    #Sets a default embed
-    current = 0
-    #Sending first message
-    #I used ctx.reply, you can use simply send as well
-    mainMessage = await ctx.reply(
-        "**Pagination!**",
-        embed = paginationList[current],
-        components = [ #Use any button style you wish to :)
-            [
-                Button(
-                    label = "Prev",
-                    id = "back",
-                    style = ButtonStyle.red
-                ),
-                Button(
-                    label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
-                    id = "cur",
-                    style = ButtonStyle.grey,
-                    disabled = True
-                ),
-                Button(
-                    label = "Next",
-                    id = "front",
-                    style = ButtonStyle.red
-                )
-            ]
-        ]
-    )
-    #Infinite loop
-    while True:
-        #Try and except blocks to catch timeout and break
-        try:
-            interaction = await client.wait_for(
-                "button_click",
-                check = lambda i: i.component.id in ["back", "front"], #You can add more
-                timeout = 10.0 #10 seconds of inactivity
-            )
-            #Getting the right list index
-            if interaction.component.id == "back":
-                current -= 1
-            elif interaction.component.id == "front":
-                current += 1
-            #If its out of index, go back to start / end
-            if current == len(paginationList):
-                current = 0
-            elif current < 0:
-                current = len(paginationList) - 1
+# #Main command
+# @client.command(
+#     name = "pagination",
+#     aliases = ["pages"]
+# )
+# async def pagination(ctx):
+#     #Sets a default embed
+#     current = 0
+#     #Sending first message
+#     #I used ctx.reply, you can use simply send as well
+#     mainMessage = await ctx.reply(
+#         "**Pagination!**",
+#         embed = paginationList[current],
+#         components = [ #Use any button style you wish to :)
+#             [
+#                 Button(
+#                     label = "Prev",
+#                     id = "back",
+#                     style = ButtonStyle.red
+#                 ),
+#                 Button(
+#                     label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
+#                     id = "cur",
+#                     style = ButtonStyle.grey,
+#                     disabled = True
+#                 ),
+#                 Button(
+#                     label = "Next",
+#                     id = "front",
+#                     style = ButtonStyle.red
+#                 )
+#             ]
+#         ]
+#     )
+#     #Infinite loop
+#     while True:
+#         #Try and except blocks to catch timeout and break
+#         try:
+#             interaction = await client.wait_for(
+#                 "button_click",
+#                 check = lambda i: i.component.id in ["back", "front"], #You can add more
+#                 timeout = 10.0 #10 seconds of inactivity
+#             )
+#             #Getting the right list index
+#             if interaction.component.id == "back":
+#                 current -= 1
+#             elif interaction.component.id == "front":
+#                 current += 1
+#             #If its out of index, go back to start / end
+#             if current == len(paginationList):
+#                 current = 0
+#             elif current < 0:
+#                 current = len(paginationList) - 1
 
-            await interaction.respond(
-                type = InteractionType.UpdateMessage,
-                embed = paginationList[current],
-                components = [ #Use any button style you wish to :)
-                    [
-                        Button(
-                            label = "Prev",
-                            id = "back",
-                            style = ButtonStyle.red
-                        ),
-                        Button(
-                            label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
-                            id = "cur",
-                            style = ButtonStyle.grey,
-                            disabled = True
-                        ),
-                        Button(
-                            label = "Next",
-                            id = "front",
-                            style = ButtonStyle.red
-                        )
-                    ]
-                ]
-            )
-        except asyncio.TimeoutError:
-            #Disable and get outta here
-            await mainMessage.edit(
-                components = [
-                    [
-                        Button(
-                            label = "Prev",
-                            id = "back",
-                            style = ButtonStyle.red,
-                            disabled = True
-                        ),
-                        Button(
-                            label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
-                            id = "cur",
-                            style = ButtonStyle.grey,
-                            disabled = True
-                        ),
-                        Button(
-                            label = "Next",
-                            id = "front",
-                            style = ButtonStyle.red,
-                            disabled = True
-                        )
-                    ]
-                ]
-            )
-            break
+#             await interaction.respond(
+#                 type = InteractionType.UpdateMessage,
+#                 embed = paginationList[current],
+#                 components = [ #Use any button style you wish to :)
+#                     [
+#                         Button(
+#                             label = "Prev",
+#                             id = "back",
+#                             style = ButtonStyle.red
+#                         ),
+#                         Button(
+#                             label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
+#                             id = "cur",
+#                             style = ButtonStyle.grey,
+#                             disabled = True
+#                         ),
+#                         Button(
+#                             label = "Next",
+#                             id = "front",
+#                             style = ButtonStyle.red
+#                         )
+#                     ]
+#                 ]
+#             )
+#         except asyncio.TimeoutError:
+#             #Disable and get outta here
+#             await mainMessage.edit(
+#                 components = [
+#                     [
+#                         Button(
+#                             label = "Prev",
+#                             id = "back",
+#                             style = ButtonStyle.red,
+#                             disabled = True
+#                         ),
+#                         Button(
+#                             label = f"Page {int(paginationList.index(paginationList[current])) + 1}/{len(paginationList)}",
+#                             id = "cur",
+#                             style = ButtonStyle.grey,
+#                             disabled = True
+#                         ),
+#                         Button(
+#                             label = "Next",
+#                             id = "front",
+#                             style = ButtonStyle.red,
+#                             disabled = True
+#                         )
+#                     ]
+#                 ]
+#             )
+#             break
 
 player1 = ""
 player2 = ""

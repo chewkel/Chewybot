@@ -113,18 +113,19 @@ class help(commands.Cog):
         embed = discord.Embed(title="Help",
                             description="Get some help",
                             color=0x36393F)
+        embed.add_field(name="Under Construction",value = "Currently remaking a library that won't bonk the bot :(")
     #     embed.add_field(name="join",value="Joins the Current voice channel you are in.",
     # inline=False)
     #     embed.add_field(name="leave",value="Leaves the Current voice channel you are in.",
     # inline=False)
     #     embed.add_field(name="nowplay",value="Shows the current song playing",
     # inline=False)
-        embed.add_field(name="play",value="Shows your playlist.",
-    inline=True)
-        embed.add_field(name="queue",value="Shows your playlist.",
-    inline=True)
-        embed.add_field(name="skip",value="Shows your playlist.",
-    inline=True)
+    #     embed.add_field(name="play",value="Shows your playlist.",
+    # inline=True)
+    #     embed.add_field(name="queue",value="Shows your playlist.",
+    # inline=True)
+    #     embed.add_field(name="skip",value="Shows your playlist.",
+    # inline=True)
     #     embed.add_field(name="remove",value="Removes a song from your playlist. Must use numbers such as !!remove 1",
     # inline=False)
     #     embed.add_field(name="loop",value="Loops the current song.",
