@@ -1,8 +1,8 @@
+
 import os
 import discord
 from discord.ext import commands, tasks
-from discord.ext.commands import has_permissions
-from discord_slash import SlashCommand, SlashCommandOptionType, SlashContext
+# from discord_slash import SlashCommand, SlashCommandOptionType, SlashContext
 import random
 from discord import Member
 from keep_alive import keep_alive
@@ -17,8 +17,8 @@ from pathlib import Path
 import motor.motor_asyncio
 from discord.ext import commands
 import json_loader
-from mongo import Document
-from utils import clean_code, Pag
+# from mongo import Document
+# from utils import clean_code, Pag
 from datetime import datetime
 import datetime
 from typing import Optional
@@ -47,8 +47,9 @@ import DiscordUtils
 from traceback import format_exception
 import asyncpraw
 import traceback
-from discordTogether import DiscordTogether
-import discordTogether
+# from discordTogether import DiscordTogether
+# import discordTogether
+import sys
 
 client = commands.AutoShardedBot(commands.when_mentioned_or('!!'),
                                  help_command=None,
@@ -56,12 +57,12 @@ client = commands.AutoShardedBot(commands.when_mentioned_or('!!'),
                                  cape_insensitive=True)
 
 client.load_extension('jishaku')
-togetherControl = DiscordTogether(client)
+# togetherControl = DiscordTogether(client)
 
 @client.event
 async def on_ready():
     print('Chewybug is online :D')
-    DiscordComponents(client)
+    # DiscordComponents(client)
     await gen_memes() 
     servers = len(client.guilds)
     members = 0
@@ -101,7 +102,7 @@ guidl = guild_ids = [
     371390722751856640, 843089655976165387, 792426133157183490
 ]
 
-slash = SlashCommand(client, sync_commands=True)
+# slash = SlashCommand(client, sync_commands=True)
 
 c_id = os.environ['client_id']
 c_secret = os.environ['client_secret']
@@ -113,7 +114,16 @@ reddit = asyncpraw.Reddit(client_id=c_id,
                      password=rpass,
                      user_agent="chewy")
 
-music = DiscordUtils.Music()
+# music = DiscordUtils.Music()
+
+@commands.is_owner()
+@client.command(aliases=["r"])
+async def restart(ctx):
+  embed=discord.Embed(title=":white_check_mark:",desc="Successfully Restarted")
+  await ctx.send(embed=embed)
+  os.system("clear")
+  os.execv(sys.executable, ['python'] + sys.argv)
+  await ctx.send("succesfully restarted")
 
 # @client.event
 # async def on_command_error(ctx, error):
@@ -159,15 +169,15 @@ options = [{
     "type": 4
 }]
 
-@slash.slash(name = 'Guess' , description = 'Guesses a number', guild_ids = guidl , options = options)
-async def guess(ctx : SlashContext , start = 0, stop = 10):
- randomnumber = random.randint(start, stop)
- await ctx.send(content = f"Your random number is {randomnumber}")
+# @slash.slash(name = 'Guess' , description = 'Guesses a number', guild_ids = guidl , options = options)
+# async def guess(ctx : SlashContext , start = 0, stop = 10):
+#  randomnumber = random.randint(start, stop)
+#  await ctx.send(content = f"Your random number is {randomnumber}")
 
 
-@slash.slash(name="Ping",description = 'Shows bot latency', guild_ids=guidl)
-async def _ping(ctx):
- await ctx.send(f'Ping! Pong! You got a latency of {round  (client.latency * 1000)} ms')
+# @slash.slash(name="Ping",description = 'Shows bot latency', guild_ids=guidl)
+# async def _ping(ctx):
+#  await ctx.send(f'Ping! Pong! You got a latency of {round  (client.latency * 1000)} ms')
 
 all_subs = []
 
@@ -271,74 +281,74 @@ async def gstart(ctx, time=None,*,prize=None):
 
 #for i in range(len(cogs)):
 #    cogs[i].setup(client)
-buttons = [
-    [
-        Button(style=ButtonStyle.grey,label="1"),
-        Button(style=ButtonStyle.grey,label="2"),
-        Button(style=ButtonStyle.grey,label="3"),
-        Button(style=ButtonStyle.blue,label="x"),
-        Button(style=ButtonStyle.red,label="Exit")
-    ],
-    [
-        Button(style=ButtonStyle.grey,label="4"),
-        Button(style=ButtonStyle.grey,label="5"),
-        Button(style=ButtonStyle.grey,label="6"),
-        Button(style=ButtonStyle.blue,label="÷"),
-        Button(style=ButtonStyle.red,label="←")
-    ],
-    [
-        Button(style=ButtonStyle.grey,label="7"),
-        Button(style=ButtonStyle.grey,label="8"),
-        Button(style=ButtonStyle.grey,label="9"),
-        Button(style=ButtonStyle.blue,label="+"),
-        Button(style=ButtonStyle.red,label="Clear")
-    ],
-    [
-        Button(style=ButtonStyle.grey,label="00"),
-        Button(style=ButtonStyle.grey,label="0"),
-        Button(style=ButtonStyle.grey,label="."),
-        Button(style=ButtonStyle.blue,label="-"),
-        Button(style=ButtonStyle.green,label="=")
-    ],
-]
+# buttons = [
+#     [
+#         Button(style=ButtonStyle.grey,label="1"),
+#         Button(style=ButtonStyle.grey,label="2"),
+#         Button(style=ButtonStyle.grey,label="3"),
+#         Button(style=ButtonStyle.blue,label="x"),
+#         Button(style=ButtonStyle.red,label="Exit")
+#     ],
+#     [
+#         Button(style=ButtonStyle.grey,label="4"),
+#         Button(style=ButtonStyle.grey,label="5"),
+#         Button(style=ButtonStyle.grey,label="6"),
+#         Button(style=ButtonStyle.blue,label="÷"),
+#         Button(style=ButtonStyle.red,label="←")
+#     ],
+#     [
+#         Button(style=ButtonStyle.grey,label="7"),
+#         Button(style=ButtonStyle.grey,label="8"),
+#         Button(style=ButtonStyle.grey,label="9"),
+#         Button(style=ButtonStyle.blue,label="+"),
+#         Button(style=ButtonStyle.red,label="Clear")
+#     ],
+#     [
+#         Button(style=ButtonStyle.grey,label="00"),
+#         Button(style=ButtonStyle.grey,label="0"),
+#         Button(style=ButtonStyle.grey,label="."),
+#         Button(style=ButtonStyle.blue,label="-"),
+#         Button(style=ButtonStyle.green,label="=")
+#     ],
+# ]
 
-def calculator(exp):
-    o = exp.replace('x','*')
-    o = o.replace('÷','/')
-    result = ''
-    try:
-        result=str(eval(o))
-    except:
-        result = 'An error occurred'
-    return result
+# def calculator(exp):
+#     o = exp.replace('x','*')
+#     o = o.replace('÷','/')
+#     result = ''
+#     try:
+#         result=str(eval(o))
+#     except:
+#         result = 'An error occurred'
+#     return result
 
-@commands.guild_only()
-@client.command()
-async def calc(ctx):
-    m = await ctx.send(content="Loading Calculator")
-    expression="None"
-    delta = datetime.datetime.utcnow() + datetime.timedelta(minutes=5)
-    e = discord.Embed(title=f'{ctx.author.name}\'s | {ctx.author.id}',description=expression,timestamp=delta)
-    await m.edit(components=buttons,embed=e)
-    while m.created_at < delta:
-        res = await client.wait_for('button_click')
-        if res.author.id == int(res.message.embed[0].title.split('|')[1]) and res.message.embeds[0].timestamp < delta:
-            expression = res.message.embeds[0].description
-            if expression == 'None' or expression == 'An error orccured':
-                expression = ''
-            if res.component.label == 'Exit':
-                await res.respond(content='Calculator Closed',type=7)
-                break
-            elif res.component.label == '←':
-                expression = expression[:-1]
-            elif res.component.label == 'Clear':
-                expression=None
-            elif res.component.label == '=':
-                expression = calculator(expression)
-            else:
-                expression += res.component.label
-            f=discord.Embed(title=f'{res.author.name}\'s calculator|{res.author.id}', descripion = expression,timestamp = delta)
-            await res.respond(content='',embed=f,component=buttons,type=7)
+# @commands.guild_only()
+# @client.command()
+# async def calc(ctx):
+#     m = await ctx.send(content="Loading Calculator")
+#     expression="None"
+#     delta = datetime.datetime.utcnow() + datetime.timedelta(minutes=5)
+#     e = discord.Embed(title=f'{ctx.author.name}\'s | {ctx.author.id}',description=expression,timestamp=delta)
+#     await m.edit(components=buttons,embed=e)
+#     while m.created_at < delta:
+#         res = await client.wait_for('button_click')
+#         if res.author.id == int(res.message.embed[0].title.split('|')[1]) and res.message.embeds[0].timestamp < delta:
+#             expression = res.message.embeds[0].description
+#             if expression == 'None' or expression == 'An error orccured':
+#                 expression = ''
+#             if res.component.label == 'Exit':
+#                 await res.respond(content='Calculator Closed',type=7)
+#                 break
+#             elif res.component.label == '←':
+#                 expression = expression[:-1]
+#             elif res.component.label == 'Clear':
+#                 expression=None
+#             elif res.component.label == '=':
+#                 expression = calculator(expression)
+#             else:
+#                 expression += res.component.label
+#             f=discord.Embed(title=f'{res.author.name}\'s calculator|{res.author.id}', descripion = expression,timestamp = delta)
+#             await res.respond(content='',embed=f,component=buttons,type=7)
 
 ch = ["Rock","Paper","Scissors"]
 
@@ -453,7 +463,7 @@ async def eval_fn(ctx, *, code):
         await ctx.send(f"```{traceback.format_exc()}```")
 
 @client.command()
-async def servers(self, ctx):
+async def servers(ctx):
     activeservers = client.guilds
     for guild in activeservers:
         await ctx.send(guild.name)
@@ -710,126 +720,126 @@ async def place_error(ctx, error):
         await ctx.send("Please enter a position you would like to mark.")
     elif isinstance(error, commands.BadArgument):
         await ctx.send("Please make sure to enter an integer.")
-
-@client.command()
-async def join(ctx):
-    await ctx.author.voice.channel.connect() #Joins author's voice channel
-    
-@client.command()
-async def leave(ctx):
-    await ctx.voice_client.disconnect()
-    
-@client.command()
-async def play(ctx, *, url):
-    player = music.get_player(guild_id=ctx.guild.id)
-    if not player:
-        player = music.create_player(ctx, ffmpeg_error_betterfix=True)
-    if not ctx.voice_client.is_playing():
-        await player.queue(url, search=True)
-        song = await player.play()
-        await ctx.send(f"Playing {song.name}")
-    else:
-        song = await player.queue(url, search=True)
-        await ctx.send(f"Queued {song.name}")
         
-@client.command()
-async def pause(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.pause()
-    await ctx.send(f"Paused {song.name}")
+# @client.command()
+# async def join(ctx):
+#     await ctx.author.voice.channel.connect() #Joins author's voice channel
     
-@client.command()
-async def resume(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.resume()
-    await ctx.send(f"Resumed {song.name}")
+# @client.command()
+# async def leave(ctx):
+#     await ctx.voice_client.disconnect()
     
-@client.command()
-async def stop(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    await player.stop()
-    await ctx.send("Stopped")
+# @client.command()
+# async def play(ctx, *, url):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     if not player:
+#         player = music.create_player(ctx, ffmpeg_error_betterfix=True)
+#     if not ctx.voice_client.is_playing():
+#         await player.queue(url, search=True)
+#         song = await player.play()
+#         await ctx.send(f"Playing {song.name}")
+#     else:
+#         song = await player.queue(url, search=True)
+#         await ctx.send(f"Queued {song.name}")
+        
+# @client.command()
+# async def pause(ctx):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     song = await player.pause()
+#     await ctx.send(f"Paused {song.name}")
     
-@client.command()
-async def loop(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.toggle_song_loop()
-    if song.is_looping:
-        await ctx.send(f"Enabled loop for {song.name}")
-    else:
-        await ctx.send(f"Disabled loop for {song.name}")
+# @client.command()
+# async def resume(ctx):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     song = await player.resume()
+#     await ctx.send(f"Resumed {song.name}")
     
-@client.command()
-async def queue(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    await ctx.send(f"{', '.join([song.name for song in player.current_queue()])}")
+# @client.command()
+# async def stop(ctx):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     await player.stop()
+#     await ctx.send("Stopped")
     
-@client.command()
-async def np(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = player.now_playing()
-    await ctx.send(song.name)
+# @client.command()
+# async def loop(ctx):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     song = await player.toggle_song_loop()
+#     if song.is_looping:
+#         await ctx.send(f"Enabled loop for {song.name}")
+#     else:
+#         await ctx.send(f"Disabled loop for {song.name}")
     
-@client.command()
-async def skip(ctx):
-    player = music.get_player(guild_id=ctx.guild.id)
-    data = await player.skip(force=True)
-    if len(data) == 2:
-        await ctx.send(f"Skipped from {data[0].name} to {data[1].name}")
-    else:
-        await ctx.send(f"Skipped {data[0].name}")
-
-@client.command()
-async def volume(ctx, vol):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
-    await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
+# @client.command()
+# async def queue(ctx):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     await ctx.send(f"{', '.join([song.name for song in player.current_queue()])}")
     
-@client.command()
-async def remove(ctx, index):
-    player = music.get_player(guild_id=ctx.guild.id)
-    song = await player.remove_from_queue(int(index))
-    await ctx.send(f"Removed {song.name} from queue")
+# @client.command()
+# async def np(ctx):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     song = player.now_playing()
+#     await ctx.send(song.name)
+    
+# @client.command()
+# async def skip(ctx):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     data = await player.skip(force=True)
+#     if len(data) == 2:
+#         await ctx.send(f"Skipped from {data[0].name} to {data[1].name}")
+#     else:
+#         await ctx.send(f"Skipped {data[0].name}")
 
-@client.command(aliases=["yt"])
-async def startyt(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'youtube')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command()
+# async def volume(ctx, vol):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
+#     await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
+    
+# @client.command()
+# async def remove(ctx, index):
+#     player = music.get_player(guild_id=ctx.guild.id)
+#     song = await player.remove_from_queue(int(index))
+#     await ctx.send(f"Removed {song.name} from queue")
 
-@client.command(aliases=["poker","pk"])
-async def startpoker(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'poker')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command(aliases=["yt"])
+# async def startyt(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'youtube')
+#     await ctx.send(f"Click the blue link!\n{link}")
 
-@client.command(aliases=["chess"])
-async def startchess(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'chess')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command(aliases=["poker","pk"])
+# async def startpoker(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'poker')
+#     await ctx.send(f"Click the blue link!\n{link}")
 
-@client.command(aliases=["bet"])
-async def startbt(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'betrayal')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command(aliases=["chess"])
+# async def startchess(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'chess')
+#     await ctx.send(f"Click the blue link!\n{link}")
 
-@client.command(aliases=["fish"])
-async def startfish(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'fishing')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command(aliases=["bet"])
+# async def startbt(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'betrayal')
+#     await ctx.send(f"Click the blue link!\n{link}")
 
-@client.command(aliases=["lt"])
-async def startlt(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'letter-tile')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command(aliases=["fish"])
+# async def startfish(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'fishing')
+#     await ctx.send(f"Click the blue link!\n{link}")
 
-@client.command(aliases=["ws"])
-async def startws(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'word-snack')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command(aliases=["lt"])
+# async def startlt(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'letter-tile')
+#     await ctx.send(f"Click the blue link!\n{link}")
 
-@client.command(aliases=["dcr"])
-async def startdcr(ctx):
-    link = await togetherControl.create_link(ctx.author.voice.channel.id, 'doodle-crew')
-    await ctx.send(f"Click the blue link!\n{link}")
+# @client.command(aliases=["ws"])
+# async def startws(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'word-snack')
+#     await ctx.send(f"Click the blue link!\n{link}")
+
+# @client.command(aliases=["dcr"])
+# async def startdcr(ctx):
+#     link = await togetherControl.create_link(ctx.author.voice.channel.id, 'doodle-crew')
+#     await ctx.send(f"Click the blue link!\n{link}")
 
 
 keep_alive()

@@ -23,7 +23,7 @@ class help(commands.Cog):
     async def help(self,ctx):
         embed = discord.Embed(title="Help",
                             description="Get some help",
-                            color=0x34ffcc)
+                            color=0x36393F)
         embed.set_thumbnail(
             url=
             "https://cdn.discordapp.com/attachments/502516810730700800/863404891665727538/help.png"
@@ -81,7 +81,7 @@ class help(commands.Cog):
     async def help2(self,ctx):
         embed = discord.Embed(title="Help",
                             description="Get some help",
-                            color=0x34ffcc)
+                            color=0x36393F)
         embed.set_thumbnail(
             url=
             "https://cdn.discordapp.com/attachments/502516810730700800/863404891665727538/help.png"
@@ -112,25 +112,29 @@ class help(commands.Cog):
     async def musichelp(self,ctx):
         embed = discord.Embed(title="Help",
                             description="Get some help",
-                            color=0x34ffcc)
-        embed.add_field(name="join",value="Joins the Current voice channel you are in.",
-    inline=False)
-        embed.add_field(name="leave",value="Leaves the Current voice channel you are in.",
-    inline=False)
-        embed.add_field(name="nowplay",value="Shows the current song playing",
-    inline=False)
+                            color=0x36393F)
+    #     embed.add_field(name="join",value="Joins the Current voice channel you are in.",
+    # inline=False)
+    #     embed.add_field(name="leave",value="Leaves the Current voice channel you are in.",
+    # inline=False)
+    #     embed.add_field(name="nowplay",value="Shows the current song playing",
+    # inline=False)
+        embed.add_field(name="play",value="Shows your playlist.",
+    inline=True)
         embed.add_field(name="queue",value="Shows your playlist.",
-    inline=False)
-        embed.add_field(name="remove",value="Removes a song from your playlist. Must use numbers such as !!remove 1",
-    inline=False)
-        embed.add_field(name="loop",value="Loops the current song.",
-    inline=False)
-        embed.add_field(name="volume",value="Sets the volume of the current song.",
-    inline=False)
-        embed.add_field(name="pause",value="Pauses the current song playing.",
-    inline=False)
-        embed.add_field(name="resume",value="Resumes the current song playing.",
-    inline=False)
+    inline=True)
+        embed.add_field(name="skip",value="Shows your playlist.",
+    inline=True)
+    #     embed.add_field(name="remove",value="Removes a song from your playlist. Must use numbers such as !!remove 1",
+    # inline=False)
+    #     embed.add_field(name="loop",value="Loops the current song.",
+    # inline=False)
+    #     embed.add_field(name="volume",value="Sets the volume of the current song.",
+    # inline=False)
+    #     embed.add_field(name="pause",value="Pauses the current song playing.",
+    # inline=False)
+    #     embed.add_field(name="resume",value="Resumes the current song playing.",
+    # inline=False)
         await ctx.send(embed=embed)
 
 def setup(client):
