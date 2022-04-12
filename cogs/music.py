@@ -1,12 +1,83 @@
 import discord
 from discord.ext import commands
+import wavelink
 
 # from youtube_dl import YoutubeDL
 
 class music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+    #     self.bot.loop.create_task(self.node_connect())
     
+    # async def node_connect(self):
+    #     await self.client.wait_until_ready()
+    #     await wavelink.NodePool.create_node(bot = self.client, host='lava.link',port = 80, password = 'dismusic')
+        
+    # @commands.Cog.listener()
+    # async def on_wavelink_node_ready(self,node: wavelink.Node):
+    #     print(f"Node {node.identifier} is ready!")
+
+    
+    # @commands.command()
+    # async def play(self,ctx: commands.Context, *, search: wavelink.YouTubeTrack):
+    #     if not ctx.voice_client:
+    #         vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+    #     elif not getattr(ctx.author.voice, "channel", None):
+    #         return await ctx.send("You be in a vc")
+    #     else:
+    #         vc: wavelink.Player = ctx.voice_client
+    
+    #     await vc.play(search)
+    #     await ctx.send(f"Now playing {search.title}")
+        
+    # @commands.command()
+    # async def pause(self,ctx: commands.Context):
+    #     if not ctx.voice_client:
+    #         return await ctx.send("You are not playing anything so I can't pause anything")
+    #     elif not getattr(ctx.author.voice, "channel", None):
+    #         return await ctx.send("You be in a vc")
+    #     else:
+    #         vc: wavelink.Player = ctx.voice_client
+
+    #     await vc.pause()
+    #     await ctx.send("Current song has been paused")
+        
+    # @commands.command()
+    # async def resume(self,ctx: commands.Context):
+    #     if not ctx.voice_client:
+    #         return await ctx.send("You are not playing anything so I can't pause anything")
+    #     elif not getattr(ctx.author.voice, "channel", None):
+    #         return await ctx.send("You be in a vc")
+    #     else:
+    #         vc: wavelink.Player = ctx.voice_client
+
+    #     await vc.resume()
+    #     await ctx.send("Current song has been resumed")
+
+    # @commands.command()
+    # async def stop(self,ctx: commands.Context):
+    #     if not ctx.voice_client:
+    #         return await ctx.send("You are not playing anything so I can't pause anything")
+    #     elif not getattr(ctx.author.voice, "channel", None):
+    #         return await ctx.send("You be in a vc")
+    #     else:
+    #         vc: wavelink.Player = ctx.voice_client
+
+    #     await vc.stop()
+    #     await ctx.send("Stopped")
+        
+    # @commands.command()
+    # async def disconnect(self,ctx: commands.Context):
+    #     if not ctx.voice_client:
+    #         return await ctx.send("You are not playing anything so I can't pause anything")
+    #     elif not getattr(ctx.author.voice, "channel", None):
+    #         return await ctx.send("You be in a vc")
+    #     else:
+    #         vc: wavelink.Player = ctx.voice_client
+
+    #     await vc.disconnect()
+    #     await ctx.send("I left the vc")
+        
     #     #all the music related stuff
     #     self.is_playing = False
 
