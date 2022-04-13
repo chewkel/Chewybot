@@ -9,7 +9,6 @@ description = ""
 name = "repl_python3_beta_Chewybot"
 version = "0.1.0"
 [tool.poetry.dependencies]
-Flask = "^2.0.1"
 Pillow = "^9.1.0"
 PyNaCl = "^1.4.0"
 Voice = "^0.1.0"

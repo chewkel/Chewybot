@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands, tasks
 import random
 from discord import Member
-from keep_alive import keep_alive
+# from keep_alive import keep_alive
 import contextlib
 import io
 import logging
@@ -1454,7 +1454,7 @@ async def nstats(ctx,user: discord.Member = None):
     await ctx.send(file = discord.File("stats template copy1.png"))  
 
 
-keep_alive()
+# keep_alive()
 my_secret = os.environ['bot_token']
 # client.run(my_secret)
 client.run(config_location["Token"])
