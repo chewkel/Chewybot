@@ -360,5 +360,30 @@ class fun(commands.Cog):
     
         await ctx.send(random.choice(joke))
 
+    @commands.guild_only()
+    @commands.command(pass_context = True)
+    async def action(self,ctx, player):
+        await ctx.send(f"{player}, what will you do now? OPTIONS: Fight, Defense, Items, Surrender")
+        def check(m):
+            return m.channel == ctx.channel and m.author == ctx.author
+        response = await client.wait_for('message', check=check)
+        if "defense" in response.content.lower():
+            pass
+        elif "fight" in response.content.lower():
+            pass
+        elif "Items" in response.content.lower():
+            pass
+        elif "Surender" in response.content.lower():
+            pass
+        elif "end" in response.content.lower():
+            return False
+        return True
+
+    async def turn(ctx, nb):
+        await ctx.send("-- Turn {nb} --")
+        for player in ["player 1", "player 2"]:
+            action = await action(ctx, player)
+        await ctx.send("Game ended") if not action else await turn(ctx, nb+1)
+            
 def setup(client):
     client.add_cog(fun(client))
